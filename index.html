@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Apex Guide - By Kingsuk</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#06060e;--sidebar:#0a0a18;--card:#0e0e1c;--card2:#111125;--border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.1);--text:#eef0f6;--muted:#9ba3b5;--dim:#636b7e;--accent:#7c5cfc;--accent2:#c084fc;--accentBg:rgba(124,92,252,.08);--green:#34d399;--greenBg:rgba(52,211,153,.1);--orange:#fb923c;--red:#f87171;--pink:#f472b6;--cyan:#38bdf8;--grad1:linear-gradient(135deg,#7c5cfc,#c084fc);--grad2:linear-gradient(135deg,#38bdf8,#818cf8);--grad3:linear-gradient(135deg,#34d399,#38bdf8);--grad4:linear-gradient(135deg,#f472b6,#fb923c);--font:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;--mono:'JetBrains Mono','Fira Code',monospace}
+html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text)}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(124,92,252,.3);border-radius:9px}
+.app{display:flex;height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:290px;min-width:290px;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sidebar-header{padding:20px 18px 14px;border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.logo-icon{background:var(--grad1);border-radius:12px;padding:10px;display:flex;box-shadow:0 4px 20px rgba(124,92,252,.35)}
+.logo-icon svg{width:20px;height:20px;stroke:white;fill:none;stroke-width:2}
+.logo-text{font-weight:800;font-size:15px;letter-spacing:-.3px}.logo-sub{font-size:11px;color:var(--dim);font-weight:500;margin-top:2px}
+.progress-track{background:rgba(255,255,255,.05);border-radius:99px;height:6px;overflow:hidden;margin-bottom:5px}
+.progress-fill{height:100%;background:var(--grad1);border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.progress-label{font-size:11px;color:var(--dim);text-align:right;font-weight:500}
+.search-wrap{position:relative;margin-top:12px}
+.search-wrap svg{position:absolute;left:11px;top:10px;width:14px;height:14px;stroke:var(--dim);fill:none;stroke-width:2}
+.search-input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:9px 12px 9px 32px;color:var(--text);font-size:12.5px;outline:none;font-family:var(--font);transition:border .2s}
+.search-input:focus{border-color:rgba(124,92,252,.4)}
+.nav{flex:1;overflow:auto;padding:6px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;border-radius:10px;margin-bottom:2px;transition:all .2s;border:1px solid transparent}
+.nav-item:hover{background:var(--accentBg);border-color:var(--border)}
+.nav-item.active{background:var(--accentBg);border-color:rgba(124,92,252,.2)}
+.nav-item svg{width:16px;height:16px;stroke:var(--dim);fill:none;stroke-width:2;flex-shrink:0;transition:stroke .2s}
+.nav-item.active svg{stroke:var(--accent)}.nav-item .label{font-size:12.5px;color:var(--dim);flex:1;font-weight:500;transition:color .2s}
+.nav-item.active .label{color:var(--text);font-weight:600}
+.nav-item .check{width:14px;height:14px;stroke:var(--green);fill:none;stroke-width:2.5;display:none}
+.nav-item.done .check{display:block}
+
+/* MAIN */
+.main{flex:1;overflow:auto;padding:0}
+.content-wrap{max-width:880px;margin:0 auto;padding:28px 36px 60px;transition:opacity .35s,transform .35s}
+.content-wrap.anim{opacity:0;transform:translateY(10px)}
+
+/* HOME */
+.home{display:none;padding:40px 36px}
+.home.show{display:block}
+.hero{max-width:880px;margin:0 auto}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--accentBg);border:1px solid rgba(124,92,252,.2);border-radius:99px;padding:6px 14px;font-size:12px;color:var(--accent2);font-weight:600;margin-bottom:20px}
+.hero-badge svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+.hero h1{font-size:42px;font-weight:800;line-height:1.15;letter-spacing:-.5px;margin-bottom:14px}
+.hero h1 .gr1{background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero h1 .gr2{background:var(--grad3);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--muted);font-size:16px;line-height:1.7;max-width:600px;margin-bottom:30px}
+.hero-btn{display:inline-flex;align-items:center;gap:8px;background:var(--grad1);border:none;border-radius:12px;padding:14px 28px;color:white;font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 6px 30px rgba(124,92,252,.35);transition:transform .2s,box-shadow .2s;font-family:var(--font)}
+.hero-btn:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(124,92,252,.45)}
+.hero-btn svg{width:18px;height:18px;stroke:white;fill:none;stroke-width:2}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:40px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center;transition:border .2s}
+.stat:hover{border-color:rgba(124,92,252,.25)}
+.stat-num{font-size:26px;font-weight:800;margin-bottom:4px}
+.stat-label{font-size:12px;color:var(--dim);font-weight:500}
+.topics-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:36px}
+.topic-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:12px}
+.topic-card:hover{border-color:rgba(124,92,252,.3);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.topic-card .tc-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.topic-card .tc-icon svg{width:18px;height:18px;stroke:white;fill:none;stroke-width:2}
+.topic-card .tc-title{font-size:13px;font-weight:600}.topic-card .tc-sub{font-size:11px;color:var(--dim);margin-top:2px}
+
+/* CONTENT */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.page-title{font-size:26px;font-weight:800;letter-spacing:-.3px;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.btn-complete{padding:7px 16px;border-radius:10px;border:1px solid var(--border2);background:transparent;color:var(--dim);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:var(--font);font-weight:600;transition:all .2s}
+.btn-complete svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5}
+.btn-complete.done{border-color:var(--green);background:var(--greenBg);color:var(--green)}
+.divider{height:2px;background:var(--grad1);margin-bottom:22px;border-radius:1px;opacity:.4}
+.diagram-box{background:var(--card);border-radius:16px;padding:22px;margin-bottom:26px;border:1px solid var(--border)}
+.diagram-box svg{width:100%;height:auto}
+.nav-btns{display:flex;justify-content:space-between;margin-top:44px;padding-top:22px;border-top:1px solid var(--border)}
+.btn-prev,.btn-next{padding:11px 22px;border-radius:10px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;font-family:var(--font);font-weight:600}
+.btn-prev{border:1px solid var(--border2);background:transparent;color:var(--muted)}.btn-prev:hover{border-color:var(--accent);color:var(--text)}
+.btn-next{border:none;background:var(--grad1);color:white}.btn-next:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,92,252,.3)}
+
+/* TYPOGRAPHY */
+h2.sec{color:var(--text);font-size:21px;font-weight:800;margin:28px 0 12px;padding-bottom:10px;border-bottom:2px solid rgba(124,92,252,.25);letter-spacing:-.2px}
+h3.sub{color:var(--accent2);font-size:15.5px;font-weight:700;margin:20px 0 8px;letter-spacing:-.1px}
+p.desc{color:var(--muted);line-height:1.85;margin:8px 0;font-size:14px;font-weight:400}
+.note{background:rgba(124,92,252,.06);border:1px solid rgba(124,92,252,.2);border-radius:12px;padding:12px 16px;margin:12px 0;font-size:13px;color:#b8a5f8;font-weight:500;line-height:1.6}
+.warn{background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.2);border-radius:12px;padding:12px 16px;margin:12px 0;font-size:13px;color:#fca5a5;font-weight:500;line-height:1.6}
+.code-block{background:#0c0c1a;border-radius:12px;padding:16px 20px;margin:14px 0;overflow-x:auto;font-size:12.5px;line-height:1.7;font-family:var(--mono);border:1px solid var(--border)}
+.code-block .lang{color:var(--dim);font-size:10px;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}.code-block pre{margin:0;color:#d1d5e8;white-space:pre;overflow-x:auto}
+.tbl-wrap{overflow-x:auto;margin:14px 0}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px;border-radius:12px;overflow:hidden;border:1px solid var(--border)}
+th{background:var(--card2);color:var(--accent2);padding:10px 14px;text-align:left;font-weight:700;font-size:12px}
+td{padding:10px 14px;color:var(--muted);border-top:1px solid var(--border);font-weight:400}
+tr:hover td{background:rgba(124,92,252,.03)}
+
+.mobile-menu{position:fixed;top:12px;left:12px;z-index:100;background:var(--grad1);border:none;border-radius:10px;padding:9px 11px;cursor:pointer;display:none;box-shadow:0 4px 15px rgba(124,92,252,.4)}
+.mobile-menu svg{width:20px;height:20px;stroke:white;fill:none;stroke-width:2}
+@media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}.topics-grid{grid-template-columns:1fr}.hero h1{font-size:30px}}
+@media(max-width:768px){.sidebar{position:fixed;left:0;top:0;bottom:0;z-index:90;transform:translateX(-100%)}.sidebar.open{transform:translateX(0)!important}.mobile-menu{display:flex}.content-wrap,.home{padding:20px 18px 60px}}
+</style>
+</head>
+<body>
+
+<button class="mobile-menu" id="menuBtn"><svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+
+<div class="app">
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo" id="logoBtn" style="cursor:pointer">
+      <div class="logo-icon"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+      <div><div class="logo-text">Apex Guide - By <span style="font-weight:700;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Kingsuk</span></div><div class="logo-sub">Complete Syllabus · 17 Topics</div></div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-label" id="progressLabel">0% complete</div>
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-input" id="searchInput" placeholder="Search topics...">
+    </div>
+  </div>
+  <div class="nav" id="nav"></div>
+</div>
+
+<div class="main" id="mainScroll">
+  <!-- HOME PAGE -->
+  <div class="home show" id="homePage">
+    <div class="hero">
+      <div class="hero-badge"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Salesforce Apex Developer Guide</div>
+      <h1>Master <span class="gr1">Salesforce Apex</span> from<br>Zero to <span class="gr2">Production</span></h1>
+      <p>A comprehensive, interactive study guide covering all 17 topics in the Apex developer syllabus — from basic data types to advanced integrations, with syntax-highlighted code examples and visual diagrams.</p>
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <button class="hero-btn" id="startBtn"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Start Learning</button>
+        <a href="https://admin-geek.vercel.app/" id="siteLink" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:transparent;border:2px solid rgba(124,92,252,.4);border-radius:12px;padding:12px 26px;color:var(--accent2);font-weight:700;font-size:15px;cursor:pointer;text-decoration:none;font-family:var(--font);transition:all .2s" onmouseover="this.style.borderColor='rgba(124,92,252,.8)';this.style.background='rgba(124,92,252,.08)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(124,92,252,.4)';this.style.background='transparent';this.style.transform='translateY(0)'"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Salesforce Admin</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-num" style="background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent">17</div><div class="stat-label">Topics Covered</div></div>
+        <div class="stat"><div class="stat-num" style="background:var(--grad3);-webkit-background-clip:text;-webkit-text-fill-color:transparent">80+</div><div class="stat-label">Code Examples</div></div>
+        <div class="stat"><div class="stat-num" style="background:var(--grad4);-webkit-background-clip:text;-webkit-text-fill-color:transparent">9</div><div class="stat-label">Visual Diagrams</div></div>
+        <div class="stat"><div class="stat-num" style="background:var(--grad2);-webkit-background-clip:text;-webkit-text-fill-color:transparent">40+</div><div class="stat-label">Reference Tables</div></div>
+      </div>
+      <div class="topics-grid" id="topicsGrid"></div>
+    </div>
+    <div style="text-align:center;margin-top:50px;padding:20px 0;border-top:1px solid var(--border)">
+        <p style="color:var(--dim);font-size:13px;font-weight:500">Created with <span style="color:#f472b6;font-size:16px">💖</span> by <span style="font-weight:700;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Kingsuk</span></p>
+        <p style="color:var(--dim);font-size:13px;font-weight:500">Salesforce APEX | © 2026 All Rights Reserved</p>
+      </div>
+  </div>
+
+  <!-- CONTENT PAGE -->
+  <div class="content-wrap anim" id="contentWrap" style="display:none">
+    <div class="page-header">
+      <div class="page-title" id="pageTitle"></div>
+      <button class="btn-complete" id="completeBtn"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="completeTxt">Mark Complete</span></button>
+    </div>
+    <div class="divider"></div>
+    <div class="diagram-box" id="diagramBox" style="display:none"></div>
+    <div id="sectionContent"></div>
+    <div class="nav-btns">
+      <button class="btn-prev" id="prevBtn">← Previous</button>
+      <button class="btn-next" id="nextBtn">Next →</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ─── SYNTAX HIGHLIGHTING ───
+function hl(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\/\/.*/g,m=>`<span style="color:#6A9955">${m}</span>`).replace(/\b(public|private|global|static|void|class|trigger|return|new|if|else|for|while|switch|when|try|catch|finally|throw|insert|update|delete|upsert|undelete|merge|implements|extends|override|virtual|abstract)\b/g,'<span style="color:#c084fc">$1</span>').replace(/\b(String|Integer|Long|Double|Decimal|Boolean|Date|Datetime|Time|Id|Blob|List|Set|Map|Account|Contact|Opportunity|Task|sObject)\b/g,'<span style="color:#34d399">$1</span>').replace(/\b(true|false|null)\b/g,'<span style="color:#38bdf8">$1</span>').replace(/'[^']*'/g,m=>`<span style="color:#fb923c">${m}</span>`).replace(/@\w+/g,m=>`<span style="color:#fbbf24">${m}</span>`)}
+function codeBlock(c,l='apex'){return`<div class="code-block"><div class="lang">${l}</div><pre>${hl(c)}</pre></div>`}
+function note(t){return`<div class="note">💡 ${t}</div>`}
+function warn(t){return`<div class="warn">⚠️ ${t}</div>`}
+function tbl(h,r){return`<div class="tbl-wrap"><table><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${r.map(x=>`<tr>${x.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`}
+
+// ─── ICONS ───
+const icons={book:'<svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',code:'<svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',db:'<svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>',zap:'<svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',shield:'<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',bug:'<svg viewBox="0 0 24 24"><path d="m8 2 1.88 1.88M14.12 3.88 16 2M9 7.13v-1a3 3 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6"/></svg>',play:'<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>',clock:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',test:'<svg viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>',repeat:'<svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',layers:'<svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>',upload:'<svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>',terminal:'<svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>',star:'<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',search:'<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',box:'<svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>'};
+
+const gradColors=['var(--grad1)','var(--grad2)','var(--grad3)','var(--grad4)','var(--grad1)','var(--grad2)','var(--grad3)','var(--grad4)','var(--grad1)','var(--grad2)','var(--grad3)','var(--grad4)','var(--grad1)','var(--grad2)','var(--grad3)','var(--grad4)','var(--grad3)'];
+const topicSubs=["What is Apex, characteristics, Hello World","Primitives, Collections, Control Flow","Access modifiers, Static, Constructors","Lookup, Master-Detail, Traversal","SOQL queries, SOSL, Aggregates","insert, update, delete, Database methods","System.debug, Debug Logs, Limits","Events, Context Variables, Framework","Validation → Triggers → Workflows → Commit","User Mode, CRUD/FLS, Security","try-catch, Custom Exceptions, addError","@isTest, @TestSetup, Assertions","Sync limits vs Async limits","@future, Batch, Queueable, Schedulable","Sync & Async limits reference","Change Sets, CLI, Packages","REST, SOAP, OAuth, Callouts"];
+
+const sections=[
+{id:"intro",icon:"book",title:"1. Introduction to Apex",hasDiagram:true},
+{id:"datatypes",icon:"box",title:"2. Data Types & Logic Control",hasDiagram:true},
+{id:"classes",icon:"code",title:"3. Apex Classes"},
+{id:"relationships",icon:"db",title:"4. sObject Relationships",hasDiagram:true},
+{id:"soql",icon:"search",title:"5. SOQL & SOSL"},
+{id:"dml",icon:"layers",title:"6. Data Manipulation Language"},
+{id:"debug",icon:"bug",title:"7. Apex Debugging"},
+{id:"triggers",icon:"zap",title:"8. Apex Triggers",hasDiagram:true},
+{id:"triggerorder",icon:"play",title:"9. Trigger Order of Execution"},
+{id:"apexsecurity",icon:"shield",title:"10. Apex Security"},
+{id:"exceptions",icon:"shield",title:"11. Exception Handling"},
+{id:"testing",icon:"test",title:"12. Test Classes"},
+{id:"syncasync",icon:"repeat",title:"13. Sync vs Async",hasDiagram:true},
+{id:"annotations",icon:"terminal",title:"14. Annotations & Interfaces",hasDiagram:true},
+{id:"governor",icon:"clock",title:"15. Governor Limits",hasDiagram:true},
+{id:"deployment",icon:"upload",title:"16. Deployment & Change Sets"},
+{id:"integration",icon:"star",title:"17. Integration",hasDiagram:true}
+];
+
+// ─── DIAGRAMS (kept from previous version) ───
+const diagrams={
+intro:`<svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7c5cfc"/><stop offset="100%" stop-color="#c084fc"/></linearGradient><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#fb923c"/></linearGradient><linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#818cf8"/></linearGradient><linearGradient id="g4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient><filter id="sh"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.25"/></filter></defs><rect x="10" y="10" width="680" height="55" rx="12" fill="url(#g1)" filter="url(#sh)"/><text x="350" y="30" text-anchor="middle" fill="white" font-size="14" font-weight="bold" font-family="Plus Jakarta Sans,sans-serif">Multi-Tenant Cloud Platform</text><text x="350" y="48" text-anchor="middle" fill="#ddd" font-size="11" font-family="Plus Jakarta Sans,sans-serif">Shared Infrastructure · Governor Limits · Org Isolation</text><rect x="30" y="80" width="190" height="80" rx="10" fill="url(#g2)" filter="url(#sh)"/><text x="125" y="110" text-anchor="middle" fill="white" font-size="13" font-weight="bold" font-family="Plus Jakarta Sans,sans-serif">Apex Runtime</text><text x="125" y="130" text-anchor="middle" fill="#fff" font-size="10" font-family="Plus Jakarta Sans,sans-serif">Compiled &amp; Executed on</text><text x="125" y="145" text-anchor="middle" fill="#fff" font-size="10" font-family="Plus Jakarta Sans,sans-serif">Salesforce Servers</text><rect x="250" y="80" width="190" height="80" rx="10" fill="url(#g3)" filter="url(#sh)"/><text x="345" y="110" text-anchor="middle" fill="white" font-size="13" font-weight="bold" font-family="Plus Jakarta Sans,sans-serif">Database Layer</text><text x="345" y="130" text-anchor="middle" fill="#fff" font-size="10" font-family="Plus Jakarta Sans,sans-serif">SOQL · SOSL · DML</text><text x="345" y="145" text-anchor="middle" fill="#fff" font-size="10" font-family="Plus Jakarta Sans,sans-serif">sObjects · Relationships</text><rect x="470" y="80" width="200" height="80" rx="10" fill="url(#g4)" filter="url(#sh)"/><text x="570" y="110" text-anchor="middle" fill="white" font-size="13" font-weight="bold" font-family="Plus Jakarta Sans,sans-serif">Automation</text><text x="570" y="130" text-anchor="middle" fill="#fff" font-size="10" font-family="Plus Jakarta Sans,sans-serif">Triggers · Batch · Future</text><text x="570" y="145" text-anchor="middle" fill="#fff" font-size="10" font-family="Plus Jakarta Sans,sans-serif">Queueable · Schedulable</text><rect x="80" y="190" width="90" height="35" rx="8" fill="#111125" stroke="#7c5cfc" stroke-width="1.5"/><text x="125" y="212" text-anchor="middle" fill="#9ba3b5" font-size="11" font-family="Plus Jakarta Sans,sans-serif">Triggers</text><rect x="190" y="190" width="90" height="35" rx="8" fill="#111125" stroke="#7c5cfc" stroke-width="1.5"/><text x="235" y="212" text-anchor="middle" fill="#9ba3b5" font-size="11" font-family="Plus Jakarta Sans,sans-serif">Classes</text><rect x="300" y="190" width="90" height="35" rx="8" fill="#111125" stroke="#7c5cfc" stroke-width="1.5"/><text x="345" y="212" text-anchor="middle" fill="#9ba3b5" font-size="11" font-family="Plus Jakarta Sans,sans-serif">SOQL/DML</text><rect x="410" y="190" width="90" height="35" rx="8" fill="#111125" stroke="#7c5cfc" stroke-width="1.5"/><text x="455" y="212" text-anchor="middle" fill="#9ba3b5" font-size="11" font-family="Plus Jakarta Sans,sans-serif">Testing</text><rect x="520" y="190" width="90" height="35" rx="8" fill="#111125" stroke="#7c5cfc" stroke-width="1.5"/><text x="565" y="212" text-anchor="middle" fill="#9ba3b5" font-size="11" font-family="Plus Jakarta Sans,sans-serif">Integration</text><text x="350" y="260" text-anchor="middle" fill="#636b7e" font-size="12" font-style="italic" font-family="Plus Jakarta Sans,sans-serif">All Apex executes within Governor Limits — ensuring fair resource usage</text></svg>`,
+datatypes:`<svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="10" width="200" height="180" rx="12" fill="#7c5cfc" opacity="0.1" stroke="#7c5cfc"/><text x="120" y="35" text-anchor="middle" fill="#7c5cfc" font-size="14" font-weight="bold">List&lt;T&gt;</text><rect x="40" y="50" width="36" height="36" rx="6" fill="#7c5cfc" opacity="0.7"/><text x="58" y="73" text-anchor="middle" fill="white" font-size="14" font-weight="bold">A</text><text x="58" y="100" text-anchor="middle" fill="#9ba3b5" font-size="10">[0]</text><rect x="82" y="50" width="36" height="36" rx="6" fill="#7c5cfc" opacity="0.7"/><text x="100" y="73" text-anchor="middle" fill="white" font-size="14" font-weight="bold">B</text><text x="100" y="100" text-anchor="middle" fill="#9ba3b5" font-size="10">[1]</text><rect x="124" y="50" width="36" height="36" rx="6" fill="#7c5cfc" opacity="0.7"/><text x="142" y="73" text-anchor="middle" fill="white" font-size="14" font-weight="bold">A</text><text x="142" y="100" text-anchor="middle" fill="#9ba3b5" font-size="10">[2]</text><text x="120" y="130" text-anchor="middle" fill="#9ba3b5" font-size="10">✓ Ordered  ✓ Duplicates</text><text x="120" y="175" text-anchor="middle" fill="#636b7e" font-size="10" font-style="italic">Query results, ordered data</text><rect x="250" y="10" width="200" height="180" rx="12" fill="#fb923c" opacity="0.1" stroke="#fb923c"/><text x="350" y="35" text-anchor="middle" fill="#fb923c" font-size="14" font-weight="bold">Set&lt;T&gt;</text><circle cx="300" cy="73" r="18" fill="#fb923c" opacity="0.7"/><text x="300" y="78" text-anchor="middle" fill="white" font-size="14" font-weight="bold">A</text><circle cx="350" cy="73" r="18" fill="#fb923c" opacity="0.7"/><text x="350" y="78" text-anchor="middle" fill="white" font-size="14" font-weight="bold">B</text><circle cx="400" cy="73" r="18" fill="#fb923c" opacity="0.7"/><text x="400" y="78" text-anchor="middle" fill="white" font-size="14" font-weight="bold">C</text><text x="350" y="115" text-anchor="middle" fill="#fb923c" font-size="10" text-decoration="line-through">A (dup rejected)</text><text x="350" y="135" text-anchor="middle" fill="#9ba3b5" font-size="10">✓ Unique  ✗ No Order</text><text x="350" y="175" text-anchor="middle" fill="#636b7e" font-size="10" font-style="italic">Dedup IDs, membership check</text><rect x="480" y="10" width="200" height="180" rx="12" fill="#34d399" opacity="0.1" stroke="#34d399"/><text x="580" y="35" text-anchor="middle" fill="#34d399" font-size="14" font-weight="bold">Map&lt;K,V&gt;</text><rect x="500" y="50" width="55" height="26" rx="6" fill="#34d399" opacity="0.5"/><text x="527" y="68" text-anchor="middle" fill="white" font-size="10">Id1</text><text x="570" y="67" fill="#9ba3b5" font-size="14">→</text><rect x="585" y="50" width="70" height="26" rx="6" fill="#34d399" opacity="0.7"/><text x="620" y="68" text-anchor="middle" fill="white" font-size="10">Acc A</text><rect x="500" y="85" width="55" height="26" rx="6" fill="#34d399" opacity="0.5"/><text x="527" y="103" text-anchor="middle" fill="white" font-size="10">Id2</text><text x="570" y="102" fill="#9ba3b5" font-size="14">→</text><rect x="585" y="85" width="70" height="26" rx="6" fill="#34d399" opacity="0.7"/><text x="620" y="103" text-anchor="middle" fill="white" font-size="10">Acc B</text><text x="580" y="140" text-anchor="middle" fill="#9ba3b5" font-size="10">✓ Key→Value Lookup</text><text x="580" y="175" text-anchor="middle" fill="#636b7e" font-size="10" font-style="italic">Record lookup by Id</text></svg>`,
+relationships:`<svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="r1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7c5cfc"/><stop offset="100%" stop-color="#c084fc"/></linearGradient><linearGradient id="r2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#818cf8"/></linearGradient></defs><text x="350" y="20" text-anchor="middle" fill="#eef0f6" font-size="15" font-weight="bold">sObject Relationships</text><rect x="30" y="40" width="180" height="60" rx="10" fill="url(#r1)" opacity="0.85"/><text x="120" y="66" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Account (Parent)</text><text x="120" y="86" text-anchor="middle" fill="#ddd" font-size="10">Id · Name · Phone</text><rect x="30" y="140" width="180" height="60" rx="10" fill="url(#r2)" opacity="0.85"/><text x="120" y="166" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Contact (Child)</text><text x="120" y="186" text-anchor="middle" fill="#ddd" font-size="10">Id · AccountId · Name</text><line x1="120" y1="100" x2="120" y2="140" stroke="#f472b6" stroke-width="2"/><text x="135" y="124" fill="#f472b6" font-size="10">Lookup / M-D</text><rect x="280" y="40" width="160" height="48" rx="10" fill="#111125" stroke="#34d399"/><text x="360" y="62" text-anchor="middle" fill="#34d399" font-size="11" font-weight="bold">Child → Parent (5 levels)</text><text x="360" y="78" text-anchor="middle" fill="#9ba3b5" font-size="9">Account.Name / __r</text><rect x="280" y="100" width="160" height="48" rx="10" fill="#111125" stroke="#fb923c"/><text x="360" y="122" text-anchor="middle" fill="#fb923c" font-size="11" font-weight="bold">Parent → Child (subquery)</text><text x="360" y="138" text-anchor="middle" fill="#9ba3b5" font-size="9">(SELECT .. FROM Contacts)</text><rect x="500" y="40" width="180" height="160" rx="10" fill="#0e0e1c" stroke="#333"/><text x="590" y="65" text-anchor="middle" fill="#eef0f6" font-size="12" font-weight="bold">Traversal Limits</text><text x="520" y="90" fill="#9ba3b5" font-size="10">Child→Parent: 5 levels</text><text x="520" y="110" fill="#9ba3b5" font-size="10">Parent→Child: 1 subquery</text><text x="520" y="130" fill="#9ba3b5" font-size="10">SOQL rows: 50,000</text><text x="520" y="160" fill="#34d399" font-size="10" font-weight="bold">Best: Child→Parent</text><text x="520" y="180" fill="#9ba3b5" font-size="10">(safer for limits)</text></svg>`,
+triggers:`<svg viewBox="0 0 700 370" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="tf1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#7c5cfc"/><stop offset="100%" stop-color="#c084fc"/></linearGradient><linearGradient id="tf2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#fb923c"/></linearGradient><linearGradient id="tf3" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#818cf8"/></linearGradient></defs><text x="350" y="18" text-anchor="middle" fill="#eef0f6" font-size="15" font-weight="bold">Trigger Order of Execution</text>${[{y:32,t:"① System Validations",c:"url(#tf1)",d:"Required fields, field types"},{y:68,t:"② Before Triggers",c:"url(#tf2)",d:"Validate / modify record values"},{y:104,t:"③ Custom Validation Rules",c:"url(#tf1)",d:"Admin-defined rules execute"},{y:140,t:"④ Record Saved (not committed)",c:"url(#tf3)",d:"Record written, Ids assigned"},{y:176,t:"⑤ After Triggers",c:"url(#tf2)",d:"Read-only Trigger.new, update related"},{y:212,t:"⑥ Assignment / Auto-Response",c:"url(#tf1)",d:"Lead/Case assignment"},{y:248,t:"⑦ Workflows → Processes → Flows",c:"url(#tf3)",d:"⚠ Field updates re-fire triggers!"},{y:284,t:"⑧ Roll-Ups / Cross-Object Formulas",c:"url(#tf1)",d:"Parent recalculated"},{y:320,t:"⑨ DML Committed + Post-Commit",c:"url(#tf3)",d:"Emails sent, async enqueued"}].map((s,i)=>`<rect x="60" y="${s.y}" width="290" height="28" rx="7" fill="${s.c}" opacity="0.85"/><text x="70" y="${s.y+18}" fill="white" font-size="10" font-weight="bold" font-family="Plus Jakarta Sans,sans-serif">${s.t}</text><text x="370" y="${s.y+18}" fill="#9ba3b5" font-size="10" font-family="Plus Jakarta Sans,sans-serif">${s.d}</text>${i<8?`<line x1="205" y1="${s.y+28}" x2="205" y2="${s.y+36}" stroke="#636b7e" stroke-width="1.5"/>`:''}`).join('')}</svg>`,
+syncasync:`<svg viewBox="0 0 720 270" xmlns="http://www.w3.org/2000/svg"><text x="360" y="18" text-anchor="middle" fill="#eef0f6" font-size="15" font-weight="bold">Asynchronous Apex Comparison</text>${[{x:15,c:"#7c5cfc",t:"@future",f:["Static void only","Primitive params","No Job Id","No chaining","50/txn limit"]},{x:190,c:"#fb923c",t:"Queueable",f:["sObject params ✓","Returns Job Id","Chaining ✓","Monitoring ✓","50/txn limit"]},{x:365,c:"#34d399",t:"Batch",f:["50M records","Fresh limits/batch","Stateful option","5 concurrent","Database.Batchable"]},{x:540,c:"#f472b6",t:"Schedulable",f:["CRON expression","Runs on schedule","Starts Batch","Setup or code","100 scheduled jobs"]}].map(b=>`<rect x="${b.x}" y="30" width="165" height="230" rx="12" fill="${b.c}" opacity="0.08" stroke="${b.c}" stroke-opacity="0.3"/><rect x="${b.x}" y="30" width="165" height="33" rx="12" fill="${b.c}" opacity="0.8"/><rect x="${b.x}" y="53" width="165" height="10" fill="${b.c}" opacity="0.8"/><text x="${b.x+82}" y="52" text-anchor="middle" fill="white" font-size="13" font-weight="bold" font-family="Plus Jakarta Sans,sans-serif">${b.t}</text>${b.f.map((f,j)=>`<text x="${b.x+15}" y="${85+j*28}" fill="#cbd5e8" font-size="11" font-family="Plus Jakarta Sans,sans-serif">• ${f}</text>`).join('')}`).join('')}</svg>`,
+annotations:`<svg viewBox="0 0 720 270" xmlns="http://www.w3.org/2000/svg"><text x="360" y="18" text-anchor="middle" fill="#eef0f6" font-size="15" font-weight="bold">Asynchronous Apex Comparison</text>${[{x:15,c:"#7c5cfc",t:"@future",f:["Static void only","Primitive params","No Job Id","No chaining","50/txn limit"]},{x:190,c:"#fb923c",t:"Queueable",f:["sObject params ✓","Returns Job Id","Chaining ✓","Monitoring ✓","50/txn limit"]},{x:365,c:"#34d399",t:"Batch",f:["50M records","Fresh limits/batch","Stateful option","5 concurrent","Database.Batchable"]},{x:540,c:"#f472b6",t:"Schedulable",f:["CRON expression","Runs on schedule","Starts Batch","Setup or code","100 scheduled jobs"]}].map(b=>`<rect x="${b.x}" y="30" width="165" height="230" rx="12" fill="${b.c}" opacity="0.08" stroke="${b.c}" stroke-opacity="0.3"/><rect x="${b.x}" y="30" width="165" height="33" rx="12" fill="${b.c}" opacity="0.8"/><rect x="${b.x}" y="53" width="165" height="10" fill="${b.c}" opacity="0.8"/><text x="${b.x+82}" y="52" text-anchor="middle" fill="white" font-size="13" font-weight="bold" font-family="Plus Jakarta Sans,sans-serif">${b.t}</text>${b.f.map((f,j)=>`<text x="${b.x+15}" y="${85+j*28}" fill="#cbd5e8" font-size="11" font-family="Plus Jakarta Sans,sans-serif">• ${f}</text>`).join('')}`).join('')}</svg>`,
+governor:`<svg viewBox="0 0 700 290" xmlns="http://www.w3.org/2000/svg"><text x="350" y="22" text-anchor="middle" fill="#eef0f6" font-size="15" font-weight="bold">Governor Limits — Sync vs Async</text>${[{l:"SOQL Queries",s:100,a:200,mx:200},{l:"SOQL Rows",s:50000,a:50000,mx:50000},{l:"DML Statements",s:150,a:150,mx:150},{l:"DML Rows",s:10000,a:10000,mx:10000},{l:"CPU Time (ms)",s:10000,a:60000,mx:60000},{l:"Heap Size (MB)",s:6,a:12,mx:12},{l:"Callouts",s:100,a:100,mx:100}].map((r,i)=>{const y=42+i*34,sw=r.s/r.mx*250,aw=r.a/r.mx*250;return`<text x="140" y="${y+14}" text-anchor="end" fill="#9ba3b5" font-size="11">${r.l}</text><rect x="150" y="${y}" width="${sw}" height="12" rx="4" fill="#7c5cfc" opacity="0.75"/><text x="${155+sw}" y="${y+10}" fill="#7c5cfc" font-size="9">${r.s.toLocaleString()}</text><rect x="150" y="${y+14}" width="${aw}" height="12" rx="4" fill="#34d399" opacity="0.75"/><text x="${155+aw}" y="${y+24}" fill="#34d399" font-size="9">${r.a.toLocaleString()}</text>`}).join('')}<rect x="500" y="48" width="12" height="12" rx="3" fill="#7c5cfc"/><text x="518" y="59" fill="#9ba3b5" font-size="11">Synchronous</text><rect x="500" y="66" width="12" height="12" rx="3" fill="#34d399"/><text x="518" y="77" fill="#9ba3b5" font-size="11">Asynchronous</text></svg>`,
+integration:`<svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ig1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#7c5cfc"/><stop offset="100%" stop-color="#c084fc"/></linearGradient><linearGradient id="ig3" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient></defs><text x="350" y="20" text-anchor="middle" fill="#eef0f6" font-size="15" font-weight="bold">Integration Patterns</text><rect x="20" y="38" width="200" height="210" rx="14" fill="url(#ig1)" opacity="0.15" stroke="#7c5cfc" stroke-opacity="0.3"/><rect x="50" y="52" width="140" height="36" rx="8" fill="url(#ig1)" opacity="0.85"/><text x="120" y="75" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Salesforce</text><text x="40" y="108" fill="#9ba3b5" font-size="10">• Apex REST/SOAP</text><text x="40" y="128" fill="#9ba3b5" font-size="10">• Named Credentials</text><text x="40" y="148" fill="#9ba3b5" font-size="10">• @future(callout=true)</text><text x="40" y="168" fill="#9ba3b5" font-size="10">• Platform Events</text><text x="40" y="198" fill="#7c5cfc" font-size="10" font-weight="bold">Auth: OAuth 2.0</text><text x="40" y="218" fill="#7c5cfc" font-size="10" font-weight="bold">Format: JSON / XML</text><rect x="480" y="38" width="200" height="210" rx="14" fill="url(#ig3)" opacity="0.15" stroke="#34d399" stroke-opacity="0.3"/><rect x="510" y="52" width="140" height="36" rx="8" fill="url(#ig3)" opacity="0.85"/><text x="580" y="75" text-anchor="middle" fill="white" font-size="13" font-weight="bold">External System</text><text x="500" y="108" fill="#9ba3b5" font-size="10">• ERP / Database</text><text x="500" y="128" fill="#9ba3b5" font-size="10">• LLM / AI APIs</text><text x="500" y="148" fill="#9ba3b5" font-size="10">• Payment Gateway</text><line x1="220" y1="82" x2="478" y2="82" stroke="#38bdf8" stroke-width="2"/><text x="350" y="76" text-anchor="middle" fill="#38bdf8" font-size="10" font-weight="bold">Outbound (SF → External)</text><line x1="478" y1="110" x2="220" y2="110" stroke="#f472b6" stroke-width="2"/><text x="350" y="105" text-anchor="middle" fill="#f472b6" font-size="10" font-weight="bold">Inbound (External → SF)</text><rect x="270" y="140" width="160" height="90" rx="10" fill="#0e0e1c" stroke="#333"/><text x="350" y="163" text-anchor="middle" fill="#eef0f6" font-size="11" font-weight="bold">Protocols</text><text x="285" y="183" fill="#34d399" font-size="10">REST — JSON, HTTP</text><text x="285" y="203" fill="#fb923c" font-size="10">SOAP — XML, WSDL</text><text x="285" y="223" fill="#7c5cfc" font-size="10">P2P / Middleware</text></svg>`
+};
+
+// ─── SECTION CONTENT (same as previous version — abbreviated for space) ───
+const content={
+intro:`<h2 class="sec">What is Apex?</h2><p class="desc">Apex is Salesforce's proprietary, strongly-typed, object-oriented programming language. It runs entirely on the Lightning Platform (multi-tenant architecture) and is syntactically similar to Java. It is <b>NOT case-sensitive</b>.</p><p class="desc">You use Apex when declarative tools (Flows, Validation Rules) cannot fulfil a business requirement.</p><h3 class="sub">Key Characteristics</h3>${tbl(["Feature","Description"],[["Hosted","Compiled, stored & executed on Salesforce servers"],["Multi-tenant Aware","Governor Limits enforce fair resource usage"],["Strongly Typed","Every variable must have a declared data type"],["Integrated with Data","SOQL/SOSL/DML embedded directly in code"],["Versioned","Saved against a specific API version"],["Easy to Test","Built-in framework; 75% coverage required"]])}<h3 class="sub">Where Apex Runs</h3><p class="desc">Triggers, Anonymous Blocks, Classes, VF Controllers, LWC (@AuraEnabled), REST/SOAP Web Services, Batch, Queueable, Schedulable, Future methods.</p>${codeBlock(`System.debug('Hello, Salesforce World!');`)}`,
+datatypes:`<h2 class="sec">Primitive Data Types</h2>${tbl(["Type","Description","Example"],[["Integer","32-bit whole number","Integer count = 10;"],["String","Character sequence","String name = 'Apex';"],["Boolean","true / false","Boolean isActive = true;"],["Decimal","Arbitrary precision","Decimal price = 99.99;"],["Date","Date only","Date.today()"],["Id","18-char record Id","Id accId = '001xx...';"],["Blob","Binary data","Blob.valueOf('text')"]])}<h3 class="sub">Collections</h3>${codeBlock(`List<String> fruits = new List<String>{'Apple','Banana'};\nSet<String> colours = new Set<String>{'Red','Blue'};\nMap<Id, Account> accMap = new Map<Id, Account>();`)}<h3 class="sub">Control Flow</h3>${codeBlock(`if (score >= 90) { System.debug('A'); }\nelse if (score >= 80) { System.debug('B'); }\n\nswitch on rating {\n    when 'Hot' { System.debug('High'); }\n    when else  { System.debug('Low'); }\n}\n\nfor (Account a : [SELECT Name FROM Account LIMIT 5]) {\n    System.debug(a.Name);\n}`)}`,
+classes:`<h2 class="sec">Apex Class Structure</h2>${codeBlock(`public class Calculator {\n    public Integer result;\n    public Calculator() { this.result = 0; }\n    public void add(Integer num) { this.result += num; }\n    public static Integer multiply(Integer a, Integer b) { return a * b; }\n}`)}<h3 class="sub">Access Modifiers</h3>${tbl(["Modifier","Visibility"],[["private","Same class only"],["public","Same org"],["global","Everywhere including packages"],["protected","Class + subclasses"]])}<h3 class="sub">Static vs Instance</h3>${tbl(["Aspect","Static","Instance"],[["Belongs to","The class","An object"],["Access","ClassName.method()","obj.method()"],["Memory","Once per txn","Per new"]])}${warn("Cannot perform DML inside a constructor.")}${codeBlock(`public interface Discountable {\n    Decimal getDiscount(Decimal price);\n}\npublic with sharing class SecureService { }\npublic without sharing class AdminService { }`)}`,
+relationships:`<h2 class="sec">Relationship Types</h2>${tbl(["Type","Coupling","Cascade Delete","Roll-Up"],[["Lookup","Loose","No","No"],["Master-Detail","Tight","Yes","Yes"],["Many-to-Many","Junction 2× M-D","M-D rules","Yes"]])}<h3 class="sub">Traversal in SOQL</h3>${codeBlock(`// Child → Parent (5 levels)\nSELECT Name, Account.Name FROM Contact\n// Custom: __r\nSELECT Project__r.Name FROM Job__c\n\n// Parent → Child (subquery)\nSELECT Name, (SELECT LastName FROM Contacts) FROM Account`)}${note("Child→Parent is safer — 1 parent per child, less risk of hitting limits.")}`,
+soql:`<h2 class="sec">SOQL — Salesforce Object Query Language</h2><p class="desc">SOQL retrieves records from a single object or related objects. Returns <b>List&lt;sObject&gt;</b> by default. Max <b>50,000 rows</b> and <b>100 queries</b> per transaction.</p>
+
+<h3 class="sub">Basic Syntax</h3>${codeBlock(`SELECT Field1, Field2 FROM ObjectApiName
+WHERE condition
+ORDER BY Field ASC/DESC
+LIMIT n OFFSET n
+
+// Examples
+List<Account> accs = [SELECT Name, Phone FROM Account WHERE Rating = 'Hot'];
+List<Contact> cons = [SELECT FirstName, LastName FROM Contact ORDER BY LastName LIMIT 10];`)}
+
+<h3 class="sub">Bind Variables</h3>${codeBlock(`// Single variable
+String targetRating = 'Hot';
+List<Account> accs = [SELECT Name FROM Account WHERE Rating = :targetRating];
+
+// Set of Ids
+Set<Id> ids = new Set<Id>{'001xx000003ABCD', '001xx000003EFGH'};
+List<Account> accs2 = [SELECT Name FROM Account WHERE Id IN :ids];`)}
+
+<h3 class="sub">Semi-Joins & Anti-Joins</h3>${codeBlock(`// Accounts WITH contacts
+SELECT Name FROM Account WHERE Id IN (SELECT AccountId FROM Contact)
+
+// Accounts WITHOUT contacts
+SELECT Name FROM Account WHERE Id NOT IN (SELECT AccountId FROM Contact)`)}
+
+<h3 class="sub">Deleted Records & User Mode</h3>${codeBlock(`// Fetch deleted records from Recycle Bin
+List<Account> del = [SELECT Name FROM Account WHERE IsDeleted = true ALL ROWS];
+
+// Run SOQL respecting user permissions
+List<Account> safe = [SELECT Name FROM Account WITH USER_MODE];`)}
+
+<h2 class="sec">Aggregate Functions & AggregateResult</h2><p class="desc">Aggregate functions perform calculations on a set of records and return a single summarized value. They return <b>List&lt;AggregateResult&gt;</b> — a special read-only sObject type. You access values using <b>.get('alias')</b>.</p>
+
+<h3 class="sub">Available Aggregate Functions</h3>${tbl(["Function","Description","Example"],[["COUNT()","Total number of rows","SELECT COUNT() FROM Contact"],["COUNT(field)","Non-null values in a field","SELECT COUNT(Email) FROM Contact"],["COUNT_DISTINCT(field)","Unique non-null values","SELECT COUNT_DISTINCT(Industry) FROM Account"],["SUM(field)","Total of numeric values","SELECT SUM(Amount) FROM Opportunity"],["AVG(field)","Average of numeric values","SELECT AVG(AnnualRevenue) FROM Account"],["MIN(field)","Smallest value","SELECT MIN(CloseDate) FROM Opportunity"],["MAX(field)","Largest value","SELECT MAX(Amount) FROM Opportunity"]])}
+
+<h3 class="sub">COUNT() — Two Forms</h3>${codeBlock(`// Form 1: COUNT() returns Integer directly — NO AggregateResult needed
+Integer total = [SELECT COUNT() FROM Account];
+System.debug('Total accounts: ' + total); // e.g., 42
+
+// Form 2: COUNT(field) returns AggregateResult — counts non-null values only
+AggregateResult[] results = [SELECT COUNT(Email) emailCount FROM Contact];
+Integer withEmail = (Integer) results[0].get('emailCount');
+System.debug('Contacts with email: ' + withEmail);`)}
+
+<h3 class="sub">SUM, AVG, MIN, MAX — Basic Usage</h3>${codeBlock(`// Multiple aggregates in one query
+AggregateResult[] results = [
+    SELECT SUM(Amount) totalAmount,
+           AVG(Amount) avgAmount,
+           MIN(Amount) minAmount,
+           MAX(Amount) maxAmount,
+           COUNT(Id) dealCount
+    FROM Opportunity
+    WHERE StageName = 'Closed Won'
+];
+
+// Access values — must CAST from Object to correct type
+Decimal total = (Decimal) results[0].get('totalAmount');
+Decimal avg   = (Decimal) results[0].get('avgAmount');
+Decimal mn    = (Decimal) results[0].get('minAmount');
+Decimal mx    = (Decimal) results[0].get('maxAmount');
+Integer cnt   = (Integer) results[0].get('dealCount');
+
+System.debug('Total Revenue: ' + total);
+System.debug('Average Deal: ' + avg);
+System.debug('Smallest Deal: ' + mn);
+System.debug('Largest Deal: ' + mx);
+System.debug('Number of Deals: ' + cnt);`)}
+
+${note("<b>AggregateResult.get('alias')</b> returns Object type. You must cast it to the correct type: <b>(Integer)</b> for COUNT, <b>(Decimal)</b> for SUM/AVG/MIN/MAX on currency/number fields, <b>(String)</b> for text fields, <b>(Date)</b> for date fields, <b>(Id)</b> for Id fields.")}
+
+<h3 class="sub">GROUP BY — Aggregate Per Group</h3><p class="desc">GROUP BY splits records into groups and applies aggregate functions to each group separately. Every non-aggregate field in SELECT must be in GROUP BY.</p>${codeBlock(`// Count contacts per account
+AggregateResult[] results = [
+    SELECT AccountId, COUNT(Id) contactCount
+    FROM Contact
+    GROUP BY AccountId
+];
+for (AggregateResult ar : results) {
+    Id accId = (Id) ar.get('AccountId');
+    Integer cnt = (Integer) ar.get('contactCount');
+    System.debug('Account ' + accId + ' has ' + cnt + ' contacts');
+}
+
+// Total opportunity amount per stage
+AggregateResult[] stageResults = [
+    SELECT StageName, SUM(Amount) totalAmt, COUNT(Id) cnt
+    FROM Opportunity
+    GROUP BY StageName
+];
+for (AggregateResult ar : stageResults) {
+    String stage = (String) ar.get('StageName');
+    Decimal amt = (Decimal) ar.get('totalAmt');
+    Integer deals = (Integer) ar.get('cnt');
+    System.debug(stage + ' = ' + amt + ' (' + deals + ' deals)');
+}`)}
+
+<h3 class="sub">HAVING — Filter After Grouping</h3><p class="desc">WHERE filters <b>before</b> grouping. HAVING filters <b>after</b> grouping on aggregate results.</p>${codeBlock(`// Accounts with MORE than 5 contacts
+AggregateResult[] results = [
+    SELECT AccountId, COUNT(Id) cnt
+    FROM Contact
+    GROUP BY AccountId
+    HAVING COUNT(Id) > 5
+];
+for (AggregateResult ar : results) {
+    System.debug('Account ' + ar.get('AccountId') + ' has ' + ar.get('cnt') + ' contacts');
+}
+
+// Stages with total amount over 100K
+AggregateResult[] bigStages = [
+    SELECT StageName, SUM(Amount) total
+    FROM Opportunity
+    GROUP BY StageName
+    HAVING SUM(Amount) > 100000
+];`)}
+
+<h3 class="sub">GROUP BY with Multiple Fields</h3>${codeBlock(`// Revenue by Account AND Stage
+AggregateResult[] results = [
+    SELECT Account.Name accName, StageName, SUM(Amount) total
+    FROM Opportunity
+    GROUP BY Account.Name, StageName
+    ORDER BY SUM(Amount) DESC
+];
+for (AggregateResult ar : results) {
+    System.debug(ar.get('accName') + ' | ' + ar.get('StageName') + ' | ' + ar.get('total'));
+}`)}
+
+<h3 class="sub">COUNT_DISTINCT — Unique Values</h3>${codeBlock(`// How many unique industries exist?
+AggregateResult[] results = [
+    SELECT COUNT_DISTINCT(Industry) uniqueIndustries
+    FROM Account
+];
+Integer unique = (Integer) results[0].get('uniqueIndustries');
+System.debug('Unique industries: ' + unique);`)}
+
+<h3 class="sub">Real-World: Using Aggregates in a Trigger (Rollup)</h3>${codeBlock(`// After Contact insert/delete — update Account with contact count
+trigger ContactCountRollup on Contact (after insert, after delete) {
+    Set<Id> accIds = new Set<Id>();
+    for (Contact c : (Trigger.new != null ? Trigger.new : Trigger.old)) {
+        if (c.AccountId != null) accIds.add(c.AccountId);
+    }
+
+    // Aggregate query — count contacts per account
+    Map<Id, Integer> countMap = new Map<Id, Integer>();
+    for (AggregateResult ar : [
+        SELECT AccountId, COUNT(Id) cnt
+        FROM Contact
+        WHERE AccountId IN :accIds
+        GROUP BY AccountId
+    ]) {
+        countMap.put((Id) ar.get('AccountId'), (Integer) ar.get('cnt'));
+    }
+
+    // Update accounts with count (0 if no contacts)
+    List<Account> toUpdate = new List<Account>();
+    for (Id accId : accIds) {
+        toUpdate.add(new Account(
+            Id = accId,
+            Contact_Count__c = countMap.containsKey(accId) ? countMap.get(accId) : 0
+        ));
+    }
+    update toUpdate;
+}`)}
+
+<h3 class="sub">AggregateResult — Key Rules</h3>${tbl(["Rule","Detail"],[["Return type","List&lt;AggregateResult&gt; (except COUNT() which returns Integer)"],["Access values",".get('alias') returns Object — must cast to correct type"],["Alias required","Always alias aggregate fields: COUNT(Id) cnt, SUM(Amount) total"],["GROUP BY fields","Every non-aggregate field in SELECT must be in GROUP BY"],["HAVING","Filters on aggregate values AFTER grouping"],["Limit","Max 50,000 rows returned (same as regular SOQL)"],["Not a real sObject","Cannot do DML on AggregateResult — it is read-only"]])}
+
+<h2 class="sec">SOSL — Salesforce Object Search Language</h2><p class="desc">SOSL searches across multiple objects simultaneously. Returns <b>List&lt;List&lt;sObject&gt;&gt;</b>.</p>${codeBlock(`List<List<sObject>> results = [
+    FIND 'Ram' IN ALL FIELDS
+    RETURNING Account(Name), Contact(FirstName, LastName)
+];
+List<Account> accounts = (List<Account>) results[0];
+List<Contact> contacts = (List<Contact>) results[1];`)}
+
+${tbl(["Aspect","SOQL","SOSL"],[["Keyword","SELECT ... FROM","FIND ... RETURNING"],["Scope","One object + relationships","Multiple unrelated objects"],["Return type","List&lt;sObject&gt;","List&lt;List&lt;sObject&gt;&gt;"],["Field support","All field types","Text, Number, Email only"],["Row limit","50,000","2,000"],["Per transaction","100 queries","20 queries"],["Use case","Precise field-level queries","Full-text search across objects"]])}`,
+dml:`<h2 class="sec">DML Operations</h2><p class="desc">DML (Data Manipulation Language) creates, updates, and deletes records. There are <b>6 DML operations</b>.</p>${codeBlock(`// INSERT — new record, Id auto-assigned
+Account a = new Account(Name = 'Acme');
+insert a;
+System.debug('Id: ' + a.Id);
+
+// UPDATE
+a.Phone = '123-456-7890';
+update a;
+
+// UPSERT — insert if new, update if exists
+Account a2 = new Account(Name='Acme', My_Ext_Id__c='EXT001');
+upsert a2 My_Ext_Id__c;
+
+// DELETE
+delete a;
+
+// UNDELETE — restore from Recycle Bin
+undelete a;
+
+// MERGE — combine up to 3 duplicates
+merge masterAccount dupeAccount;`)}
+
+<h2 class="sec">DML Statements vs Database Methods</h2><p class="desc">Two ways to perform DML. Understanding the difference is critical.</p>${tbl(["Aspect","DML Statement","Database Method"],[["Syntax","insert records;","Database.insert(records, allOrNone)"],["On failure","Throws DmlException, rolls back ALL","Returns SaveResult[] per record"],["Partial success","❌ All-or-nothing","✅ allOrNone=false allows partial"],["Error handling","try-catch","Loop through results"],["Use when","All must succeed","Some failures acceptable"]])}
+
+<h3 class="sub">DML Statement — All-or-Nothing</h3>${codeBlock(`List<Account> accs = new List<Account>{
+    new Account(Name = 'Good Account'),
+    new Account()  // Missing Name — fails!
+};
+try {
+    insert accs; // ENTIRE operation fails
+} catch (DmlException e) {
+    System.debug('Error: ' + e.getMessage());
+    for (Integer i = 0; i < e.getNumDml(); i++) {
+        System.debug('Index: ' + e.getDmlIndex(i));
+        System.debug('Msg: ' + e.getDmlMessage(i));
+        System.debug('Fields: ' + e.getDmlFieldNames(i));
+    }
+}`)}
+
+<h3 class="sub">Database.insert() — Partial Success</h3><p class="desc">With <b>allOrNone=false</b>, good records commit and bad records skip.</p>${codeBlock(`List<Account> accs = new List<Account>{
+    new Account(Name = 'Good'),
+    new Account()  // Missing Name
+};
+Database.SaveResult[] results = Database.insert(accs, false);
+for (Integer i = 0; i < results.size(); i++) {
+    if (results[i].isSuccess()) {
+        System.debug('OK Id: ' + results[i].getId());
+    } else {
+        for (Database.Error err : results[i].getErrors()) {
+            System.debug('FAIL [' + i + ']: ' + err.getStatusCode() + ' - ' + err.getMessage());
+            System.debug('Fields: ' + err.getFields());
+        }
+    }
+}`)}
+
+<h2 class="sec">All Database Methods</h2>${tbl(["Method","Returns","Equivalent"],[["Database.insert(recs, allOrNone)","SaveResult[]","insert recs;"],["Database.update(recs, allOrNone)","SaveResult[]","update recs;"],["Database.upsert(recs, field, allOrNone)","UpsertResult[]","upsert recs field;"],["Database.delete(recs, allOrNone)","DeleteResult[]","delete recs;"],["Database.undelete(recs, allOrNone)","UndeleteResult[]","undelete recs;"],["Database.merge(master, dupes)","MergeResult[]","merge master dupes;"]])}
+
+<h3 class="sub">Database.update()</h3>${codeBlock(`List<Account> accs = [SELECT Id, Phone FROM Account LIMIT 100];
+for (Account a : accs) a.Phone = '000-000-0000';
+Database.SaveResult[] res = Database.update(accs, false);
+Integer ok = 0, fail = 0;
+for (Database.SaveResult sr : res) {
+    if (sr.isSuccess()) ok++; else fail++;
+}
+System.debug('Updated: ' + ok + ' Failed: ' + fail);`)}
+
+<h3 class="sub">Database.upsert() — Insert or Update</h3><p class="desc">Matches by Id or External Id. UpsertResult has <b>isCreated()</b> to distinguish.</p>${codeBlock(`List<Account> accs = new List<Account>{
+    new Account(Name='New Corp', My_Ext__c='E001'),
+    new Account(Name='Old Corp', My_Ext__c='E002')
+};
+Database.UpsertResult[] res = Database.upsert(accs, Account.My_Ext__c, false);
+for (Database.UpsertResult ur : res) {
+    if (ur.isSuccess())
+        System.debug((ur.isCreated() ? 'INSERTED' : 'UPDATED') + ': ' + ur.getId());
+    else
+        for (Database.Error e : ur.getErrors()) System.debug('Err: ' + e.getMessage());
+}`)}
+
+<h3 class="sub">Database.delete()</h3>${codeBlock(`List<Account> old = [SELECT Id FROM Account WHERE CreatedDate < LAST_YEAR LIMIT 50];
+Database.DeleteResult[] res = Database.delete(old, false);
+for (Database.DeleteResult dr : res)
+    if (!dr.isSuccess())
+        for (Database.Error e : dr.getErrors()) System.debug('Err: ' + e.getMessage());`)}
+
+<h2 class="sec">Result Object Methods</h2>${tbl(["Method","Returns","Description"],[["isSuccess()","Boolean","True if DML succeeded for this record"],["getId()","Id","Record Id (inserted or existing)"],["getErrors()","List&lt;Database.Error&gt;","Errors for this record"],["isCreated()","Boolean","(UpsertResult only) True=inserted, False=updated"]])}
+
+<h3 class="sub">Database.Error Methods</h3>${tbl(["Method","Returns","Description"],[["getMessage()","String","Human-readable error message"],["getStatusCode()","StatusCode","e.g. REQUIRED_FIELD_MISSING"],["getFields()","List&lt;String&gt;","Field API names that caused error"]])}
+
+<h2 class="sec">Real-World: Bulk DML with Error Logging</h2>${codeBlock(`public class AccountService {
+    public static void updatePhones(List<Account> accs, String phone) {
+        for (Account a : accs) a.Phone = phone;
+        Database.SaveResult[] res = Database.update(accs, false);
+        List<Error_Log__c> logs = new List<Error_Log__c>();
+        for (Integer i = 0; i < res.size(); i++) {
+            if (!res[i].isSuccess()) {
+                for (Database.Error err : res[i].getErrors()) {
+                    logs.add(new Error_Log__c(
+                        Record_Id__c = accs[i].Id,
+                        Error_Message__c = err.getMessage(),
+                        Operation__c = 'Phone Update'
+                    ));
+                }
+            }
+        }
+        if (!logs.isEmpty()) insert logs;
+    }
+}`)}
+
+<h2 class="sec">Governor Limits</h2>${tbl(["Limit","Value"],[["DML statements/txn","150"],["DML rows/txn","10,000"],["Records per merge","3"]])}${warn("NEVER put DML inside a loop!")}
+
+<h3 class="sub">Bad vs Good</h3>${codeBlock(`// BAD — DML in loop
+for (Account a : accs) {
+    a.Phone = '000';
+    update a; // 1 DML per iteration!
+}
+
+// GOOD — bulk DML
+for (Account a : accs) a.Phone = '000';
+update accs; // 1 DML for ALL`)}`,
+debug:`<h2 class="sec">Debugging</h2>${codeBlock(`System.debug('Message');\nSystem.debug(LoggingLevel.ERROR, 'Error!');\nSystem.debug('Queries: ' + Limits.getQueries());`)}${note("System.debug() NOT counted in code coverage.")}`,
+triggers:`<h2 class="sec">What is a Trigger?</h2><p class="desc">A trigger is a piece of Apex code that executes <b>automatically</b> whenever you create, update, delete, or undelete a record on a specific sObject. You never call a trigger manually — it fires in response to DML events. By default, a trigger receives a <b>List</b> of records (up to 200 per batch).</p><h3 class="sub">Trigger Syntax</h3>${codeBlock(`trigger TriggerName on ObjectName (event1, event2, ...) {\n    // Apex code here\n}\n\ntrigger AccountTrigger on Account (\n    before insert, before update, before delete,\n    after insert, after update, after delete, after undelete\n) {\n    // All logic dispatched from here\n}`)}${note("The trigger is written on the object where the <b>manual DML</b> happens — regardless of how many other objects are involved.")}<h2 class="sec">The 7 DML Events</h2>${tbl(["Event","When It Fires","Trigger.new?","Trigger.old?","Writable?"],[["before insert","Before new record saved","✅","❌","✅ Trigger.new writable"],["after insert","After new record saved (Id available)","✅","❌","❌ Read-only"],["before update","Before changes saved","✅","✅","✅ Trigger.new writable"],["after update","After changes saved","✅","✅","❌ Read-only"],["before delete","Before record deleted","❌","✅","✅ Trigger.old writable"],["after delete","After record deleted","❌","✅","❌ Read-only"],["after undelete","After restored from Recycle Bin","✅","❌","❌ Read-only"]])}${warn("There is NO <b>before undelete</b>. Undelete only supports after context.")}<h2 class="sec">Before vs After</h2>${tbl(["Aspect","Before Trigger","After Trigger"],[["Timing","BEFORE record saved to DB","AFTER record committed"],["Primary use","Validate/modify fields on SAME record","Access Id, update RELATED records"],["DML needed?","NO — set fields directly","YES — explicit DML for related records"],["Trigger.new","Writable","Read-only"],["Record Id?","NOT in before insert","YES — Id assigned after save"]])}<h3 class="sub">Why Before Insert Has No Id</h3><p class="desc">In before insert, the record hasn't been saved yet — no Id exists. That's why <b>Trigger.newMap is NOT available</b> in before insert.</p><h2 class="sec">Context Variables — Complete</h2>${tbl(["Variable","Type","Available In","Description"],[["Trigger.new","List&lt;sObject&gt;","insert, update, undelete","New records. Writable ONLY in before."],["Trigger.old","List&lt;sObject&gt;","update, delete","Old records. ALWAYS read-only."],["Trigger.newMap","Map&lt;Id,sObject&gt;","after insert, update, undelete","New by Id. NOT in before insert."],["Trigger.oldMap","Map&lt;Id,sObject&gt;","update, delete","Old by Id."],["Trigger.isInsert / isUpdate / isDelete / isUndelete","Boolean","All","Which operation fired"],["Trigger.isBefore / isAfter","Boolean","All","Context check"],["Trigger.operationType","Enum","All","BEFORE_INSERT, AFTER_UPDATE, etc."],["Trigger.size","Integer","All","Total records in invocation"]])}<h3 class="sub">Trigger.new vs Trigger.old</h3>${codeBlock(`trigger AccountTrigger on Account (before update) {\n    for (Account newAcc : Trigger.new) {\n        Account oldAcc = Trigger.oldMap.get(newAcc.Id);\n        if (newAcc.Phone != oldAcc.Phone) {\n            System.debug('Phone changed: ' + oldAcc.Phone + ' → ' + newAcc.Phone);\n        }\n        if (newAcc.Rating != oldAcc.Rating && newAcc.Rating == 'Hot') {\n            newAcc.Description = 'Upgraded to Hot on ' + Date.today();\n        }\n    }\n}`)}<h2 class="sec">All 7 Event Examples</h2><h3 class="sub">① Before Insert — Set Defaults</h3>${codeBlock(`trigger ContactTrigger on Contact (before insert) {\n    for (Contact c : Trigger.new) {\n        if (c.LeadSource == null) c.LeadSource = 'Web';\n        c.Description = 'Created via Trigger on ' + Date.today();\n    }\n}`)}<h3 class="sub">② After Insert — Create Related Records</h3>${codeBlock(`trigger AccountTrigger on Account (after insert) {\n    List<Opportunity> opps = new List<Opportunity>();\n    for (Account a : Trigger.new) {\n        opps.add(new Opportunity(\n            Name = a.Name + ' - Initial Opp',\n            AccountId = a.Id,\n            StageName = 'Prospecting',\n            CloseDate = Date.today().addDays(30)\n        ));\n    }\n    if (!opps.isEmpty()) insert opps;\n}`)}<h3 class="sub">③ Before Update — Validate</h3>${codeBlock(`trigger AccountTrigger on Account (before update) {\n    for (Account a : Trigger.new) {\n        Account old = Trigger.oldMap.get(a.Id);\n        if (a.Rating == 'Hot' && a.Phone == null) {\n            a.addError('Phone required for Hot accounts.');\n        }\n        if (a.Rating != old.Rating) {\n            a.Description = 'Rating changed from '+old.Rating+' to '+a.Rating;\n        }\n    }\n}`)}<h3 class="sub">④ After Update — Sync to Children</h3>${codeBlock(`trigger AccountTrigger on Account (after update) {\n    Map<Id, String> changedPhones = new Map<Id, String>();\n    for (Account a : Trigger.new) {\n        Account old = Trigger.oldMap.get(a.Id);\n        if (a.Phone != old.Phone) changedPhones.put(a.Id, a.Phone);\n    }\n    if (changedPhones.isEmpty()) return;\n    List<Contact> cons = [SELECT Id, AccountId FROM Contact\n        WHERE AccountId IN :changedPhones.keySet()];\n    for (Contact c : cons) c.Phone = changedPhones.get(c.AccountId);\n    if (!cons.isEmpty()) update cons;\n}`)}<h3 class="sub">⑤ Before Delete — Prevent</h3>${codeBlock(`trigger AccountTrigger on Account (before delete) {\n    for (Account a : Trigger.old) {\n        if (a.Rating == 'Hot') a.addError('Cannot delete Hot Account.');\n    }\n}`)}<h3 class="sub">⑥ After Delete — Cleanup</h3>${codeBlock(`trigger AccountTrigger on Account (after delete) {\n    List<Task> tasks = [SELECT Id FROM Task WHERE WhatId IN :Trigger.oldMap.keySet()];\n    if (!tasks.isEmpty()) delete tasks;\n}`)}<h3 class="sub">⑦ After Undelete</h3>${codeBlock(`trigger AccountTrigger on Account (after undelete) {\n    for (Account a : Trigger.new) {\n        System.debug('Restored: ' + a.Name);\n    }\n}`)}<h2 class="sec">Rollup Summary in Apex</h2>${codeBlock(`trigger ContactCountTrigger on Contact (after insert, after update, after delete, after undelete) {\n    Set<Id> accIds = new Set<Id>();\n    if (Trigger.new != null)\n        for (Contact c : Trigger.new) if (c.AccountId != null) accIds.add(c.AccountId);\n    if (Trigger.old != null)\n        for (Contact c : Trigger.old) if (c.AccountId != null) accIds.add(c.AccountId);\n\n    List<Account> accsToUpdate = new List<Account>();\n    for (AggregateResult ar : [\n        SELECT AccountId, COUNT(Id) cnt FROM Contact\n        WHERE AccountId IN :accIds GROUP BY AccountId\n    ]) {\n        accsToUpdate.add(new Account(\n            Id = (Id) ar.get('AccountId'),\n            Total_Contacts__c = (Decimal) ar.get('cnt')\n        ));\n    }\n    Set<Id> found = new Set<Id>();\n    for (Account a : accsToUpdate) found.add(a.Id);\n    for (Id aid : accIds)\n        if (!found.contains(aid))\n            accsToUpdate.add(new Account(Id=aid, Total_Contacts__c=0));\n    if (!accsToUpdate.isEmpty()) update accsToUpdate;\n}`)}<h2 class="sec">Duplicate Id Error</h2>${codeBlock(`// BAD — Duplicate Id error!\nList<Account> accsToUpdate = new List<Account>();\nfor (Contact c : Trigger.new) {\n    accsToUpdate.add(new Account(Id=c.AccountId, Phone=c.Phone));\n}\nupdate accsToUpdate; // ERROR if multiple contacts share same AccountId\n\n// CORRECT — Map deduplicates\nMap<Id, Account> accMap = new Map<Id, Account>();\nfor (Contact c : Trigger.new) {\n    accMap.put(c.AccountId, new Account(Id=c.AccountId, Phone=c.Phone));\n}\nupdate accMap.values();`)}<h2 class="sec">Recursion Prevention</h2>${codeBlock(`public class TriggerHelper {\n    public static Boolean isFirstRun = true;\n    public static Set<Id> processedIds = new Set<Id>();\n}\ntrigger AccountTrigger on Account (after update) {\n    if (TriggerHelper.isFirstRun) {\n        TriggerHelper.isFirstRun = false;\n        // logic here\n    }\n}`)}<h2 class="sec">Trigger Framework</h2><h3 class="sub">Thin Dispatcher</h3>${codeBlock(`trigger AccountTrigger on Account (\n    before insert, before update, before delete,\n    after insert, after update, after delete, after undelete\n) {\n    AccountTriggerHandler h = new AccountTriggerHandler();\n    switch on Trigger.operationType {\n        when BEFORE_INSERT  { h.beforeInsert(Trigger.new); }\n        when BEFORE_UPDATE  { h.beforeUpdate(Trigger.new, Trigger.oldMap); }\n        when BEFORE_DELETE  { h.beforeDelete(Trigger.old); }\n        when AFTER_INSERT   { h.afterInsert(Trigger.new); }\n        when AFTER_UPDATE   { h.afterUpdate(Trigger.new, Trigger.oldMap); }\n        when AFTER_DELETE   { h.afterDelete(Trigger.old, Trigger.oldMap); }\n        when AFTER_UNDELETE { h.afterUndelete(Trigger.new); }\n    }\n}`)}<h3 class="sub">Handler Class</h3>${codeBlock(`public class AccountTriggerHandler {\n    public void beforeInsert(List<Account> accs) {\n        for (Account a : accs) if (a.Industry == null) a.Industry = 'Other';\n    }\n    public void beforeUpdate(List<Account> accs, Map<Id,Account> oldMap) {\n        for (Account a : accs)\n            if (a.Rating=='Hot' && oldMap.get(a.Id).Rating!='Hot' && a.Phone==null)\n                a.addError('Phone required for Hot accounts.');\n    }\n    public void afterInsert(List<Account> accs) {\n        List<Opportunity> opps = new List<Opportunity>();\n        for (Account a : accs)\n            opps.add(new Opportunity(Name=a.Name+' - Default', AccountId=a.Id,\n                StageName='Prospecting', CloseDate=Date.today().addMonths(1)));\n        if (!opps.isEmpty()) insert opps;\n    }\n    public void afterUpdate(List<Account> accs, Map<Id,Account> oldMap) {\n        if (!TriggerHelper.isFirstRun) return;\n        TriggerHelper.isFirstRun = false;\n        Map<Id,String> changed = new Map<Id,String>();\n        for (Account a : accs)\n            if (a.Phone != oldMap.get(a.Id).Phone) changed.put(a.Id, a.Phone);\n        if (changed.isEmpty()) return;\n        List<Contact> cons = [SELECT Id,AccountId FROM Contact WHERE AccountId IN :changed.keySet()];\n        for (Contact c : cons) c.Phone = changed.get(c.AccountId);\n        if (!cons.isEmpty()) update cons;\n    }\n    public void beforeDelete(List<Account> accs) {\n        for (Account a : accs) if (a.Rating=='Hot') a.addError('Cannot delete Hot.');\n    }\n    public void afterDelete(List<Account> a, Map<Id,Account> m) { }\n    public void afterUndelete(List<Account> a) { }\n}`)}${note("Save handler class FIRST, then the trigger.")}<h2 class="sec">Best Practices</h2>${tbl(["Rule","Bad → Good"],[["One trigger per object","2 triggers → Single trigger + handler"],["No SOQL in loops","for(a:list){[SELECT...]} → Query once → Map"],["No DML in loops","for(a:list){update a;} → Collect → update list"],["No nested loops","for(){for(){}} → Map lookup"],["Handle recursion","No flag → Static Boolean / Set<Id>"],["Bulkify","Trigger.new[0] → for(Account a : Trigger.new)"],["Use Maps","Loop search → Map<Id,sObject>"]])}`,
+triggerorder:`<h2 class="sec">Order of Execution</h2>${tbl(["Step","What Happens"],[["1","System validations"],["2","Before triggers"],["3","Custom validation rules"],["4","Record saved (not committed)"],["5","After triggers"],["6","Assignment rules"],["7","Workflows — ⚠️ re-fire triggers!"],["8","Process Builder & Flows"],["9","Roll-ups, formulas"],["10","DML committed"],["11","Post-commit: emails, async"]])}`,
+apexsecurity:`<h2 class="sec">Why Apex Security?</h2><p class="desc">By default, Apex runs in <b>System Mode</b> — it ignores all user permissions (CRUD, FLS, sharing rules). This means your code can read, create, update, or delete ANY record and ANY field, even if the running user has no permission. This is a <b>major security risk</b>. Salesforce provides multiple ways to enforce security in your code.</p>
+
+${tbl(["Mode","Description","Permissions Enforced?"],[["System Mode","Default for Apex. Full access to all data.","❌ No — ignores CRUD, FLS, sharing"],["User Mode","Respects the running user's permissions.","✅ Yes — CRUD, FLS, sharing enforced"]])}
+
+<h2 class="sec">System Mode vs User Mode</h2><p class="desc"><b>System Mode:</b> Your Apex code can access any object, any field, any record — regardless of what the running user is allowed to see. This is the default behavior of all Apex classes and triggers.</p><p class="desc"><b>User Mode:</b> Your code only accesses objects/fields/records that the running user has permission for. If the user can't see a field, the code can't read it either. Errors are thrown if access is denied.</p>
+
+${codeBlock(`// SYSTEM MODE (Default) — sees everything
+List<Account> accs = [SELECT Name, AnnualRevenue FROM Account];
+// Works even if the running user has no access to AnnualRevenue field
+
+// USER MODE — respects user's permissions
+List<Account> accs2 = [SELECT Name, AnnualRevenue FROM Account WITH USER_MODE];
+// Throws error if user can't access AnnualRevenue field`)}
+
+<h2 class="sec">CRUD and FLS — What Are They?</h2><p class="desc"><b>CRUD</b> = Create, Read, Update, Delete permissions on an <b>object</b>. Example: Can the user create Accounts? Can they delete Contacts?</p><p class="desc"><b>FLS</b> = Field-Level Security — permissions on individual <b>fields</b>. Example: Can the user see the AnnualRevenue field on Account? Can they edit the Phone field?</p>
+
+${tbl(["Level","What It Controls","Example"],[["CRUD (Object)","Can user access this object at all?","User can Read Account but cannot Delete Account"],["FLS (Field)","Can user see/edit this specific field?","User can see Account.Name but cannot see Account.AnnualRevenue"],["Sharing Rules (Record)","Which specific records can user see?","User can only see Accounts they own or that are shared with them"]])}
+
+<h2 class="sec">User Mode Database Operations (Spring '23+)</h2><p class="desc">Salesforce introduced <b>User Mode</b> keywords for SOQL and DML — the cleanest way to enforce security.</p>
+
+<h3 class="sub">SOQL in User Mode</h3>${codeBlock(`// User Mode — enforces CRUD + FLS + Sharing
+List<Account> accs = [SELECT Name, Phone FROM Account WITH USER_MODE];
+// If user can't read Phone field → throws error
+// If sharing rules hide some accounts → those are excluded
+
+// System Mode (explicit)
+List<Account> allAccs = [SELECT Name, Phone FROM Account WITH SYSTEM_MODE];
+// Returns ALL records, ALL fields — ignores permissions`)}
+
+<h3 class="sub">DML in User Mode</h3>${codeBlock(`// Insert in User Mode — checks if user has Create permission
+Account a = new Account(Name = 'New Corp');
+Database.insert(a, AccessLevel.USER_MODE);
+// If user can't create Accounts → throws error
+
+// Update in User Mode
+a.Phone = '555-1234';
+Database.update(a, AccessLevel.USER_MODE);
+// If user can't edit Phone field → throws error
+
+// Delete in User Mode
+Database.delete(a, AccessLevel.USER_MODE);
+
+// System Mode (explicit) — ignores permissions
+Database.insert(a, AccessLevel.SYSTEM_MODE);`)}
+
+<h3 class="sub">AccessLevel Enum</h3>${tbl(["Value","Description"],[["AccessLevel.USER_MODE","Enforces CRUD, FLS, and sharing rules"],["AccessLevel.SYSTEM_MODE","Ignores all permissions (default Apex behavior)"]])}
+
+<h2 class="sec">WITH SECURITY_ENFORCED (Older Approach)</h2><p class="desc">Before User Mode was introduced, <b>WITH SECURITY_ENFORCED</b> was the way to check FLS in SOQL. It still works but User Mode is now preferred.</p>
+
+${codeBlock(`// Throws exception if user can't read any field in SELECT
+List<Account> accs = [SELECT Name, AnnualRevenue FROM Account WITH SECURITY_ENFORCED];
+// If user can't read AnnualRevenue → System.QueryException`)}
+
+${tbl(["Feature","WITH SECURITY_ENFORCED","WITH USER_MODE"],[["Checks CRUD","✅","✅"],["Checks FLS","✅ (SELECT fields only)","✅ (SELECT + WHERE fields)"],["Checks Sharing","❌ No","✅ Yes"],["Works with DML","❌ SOQL only","✅ SOQL + DML"],["Recommended","Older code","✅ New code (Spring '23+)"]])}
+
+<h2 class="sec">Security.stripInaccessible()</h2><p class="desc">Instead of throwing an error when FLS is violated, this method <b>silently removes</b> fields the user can't access. Useful when you want to return partial data instead of failing completely.</p>
+
+${codeBlock(`// Query all fields (System Mode)
+List<Account> accs = [SELECT Name, AnnualRevenue, Phone FROM Account];
+
+// Strip fields the user can't READ
+SObjectAccessDecision decision = Security.stripInaccessible(
+    AccessType.READABLE, accs
+);
+
+// Get cleaned records — inaccessible fields are removed
+List<Account> safeAccs = decision.getRecords();
+// If user can't read AnnualRevenue, it's silently removed from results
+
+// Check which fields were removed
+Set<String> removedFields = decision.getRemovedFields().get('Account');
+if (removedFields != null) {
+    System.debug('Stripped fields: ' + removedFields);
+}`)}
+
+<h3 class="sub">AccessType Values</h3>${tbl(["AccessType","When to Use"],[["AccessType.READABLE","Before returning data to user — strip unreadable fields"],["AccessType.CREATABLE","Before insert — strip fields user can't create"],["AccessType.UPDATABLE","Before update — strip fields user can't edit"],["AccessType.UPSERTABLE","Before upsert — strip non-upsertable fields"]])}
+
+<h3 class="sub">stripInaccessible Before DML</h3>${codeBlock(`// User submits data including fields they shouldn't edit
+Account a = new Account(Name='Test', AnnualRevenue=5000000);
+
+// Strip fields the user can't create
+SObjectAccessDecision decision = Security.stripInaccessible(
+    AccessType.CREATABLE, new List<Account>{a}
+);
+
+// Insert only the fields the user has permission for
+insert decision.getRecords();
+// AnnualRevenue is silently removed if user can't create it`)}
+
+<h2 class="sec">Manual CRUD/FLS Checks (Schema Methods)</h2><p class="desc">For fine-grained control, manually check permissions before performing operations.</p>
+
+<h3 class="sub">Check Object-Level (CRUD)</h3>${codeBlock(`// Check if user can CREATE Accounts
+if (Schema.sObjectType.Account.isCreateable()) {\n    insert new Account(Name = 'Safe');\n} else {\n    throw new AuraHandledException('No permission to create Accounts.');\n}\n\n// Other CRUD checks:\nSchema.sObjectType.Account.isAccessible();  // Can READ?\nSchema.sObjectType.Account.isUpdateable();  // Can UPDATE?\nSchema.sObjectType.Account.isDeletable();   // Can DELETE?`)}
+
+<h3 class="sub">Check Field-Level (FLS)</h3>${codeBlock(`// Check if user can READ the AnnualRevenue field\nif (Schema.sObjectType.Account.fields.AnnualRevenue.getDescribe().isAccessible()) {\n    System.debug('User can see AnnualRevenue');\n}\n\n// Check if user can EDIT the Phone field\nif (Schema.sObjectType.Account.fields.Phone.getDescribe().isUpdateable()) {\n    acc.Phone = '555-1234';\n    update acc;\n}\n\n// Check if user can CREATE a field value\nSchema.sObjectType.Account.fields.Name.getDescribe().isCreateable();`)}
+
+<h2 class="sec">with sharing / without sharing / inherited sharing</h2><p class="desc">These keywords on a class control <b>record-level access</b> (sharing rules, OWD).</p>
+
+${tbl(["Keyword","Effect"],[["with sharing","Enforces sharing rules — user only sees records they have access to"],["without sharing","Ignores sharing rules — code sees ALL records"],["inherited sharing","Inherits the sharing context from the calling class"],["(none specified)","Same as without sharing in most contexts — dangerous!"]])}
+
+${codeBlock(`public with sharing class SafeService {\n    // Only returns records the user can see\n    public List<Account> getMyAccounts() {\n        return [SELECT Name FROM Account]; // Sharing rules applied\n    }\n}\n\npublic without sharing class AdminService {\n    // Returns ALL records regardless of user\n    public List<Account> getAllAccounts() {\n        return [SELECT Name FROM Account]; // Sees everything\n    }\n}\n\npublic inherited sharing class FlexibleService {\n    // If called from with sharing → applies sharing\n    // If called from without sharing → ignores sharing\n    public List<Account> getAccounts() {\n        return [SELECT Name FROM Account];\n    }\n}`)}
+
+${note("Best practice: Always declare sharing explicitly. Use <b>with sharing</b> by default. Only use <b>without sharing</b> when you have a valid reason (e.g., admin-level operations).")}
+
+<h2 class="sec">Security Best Practices Summary</h2>${tbl(["Practice","How"],[["Enforce FLS in SOQL","Use WITH USER_MODE (preferred) or WITH SECURITY_ENFORCED"],["Enforce CRUD/FLS in DML","Use Database.insert(rec, AccessLevel.USER_MODE)"],["Silently strip fields","Use Security.stripInaccessible()"],["Manual CRUD checks","Schema.sObjectType.Object.isCreateable()"],["Manual FLS checks","Schema.sObjectType.Object.fields.Field.getDescribe().isAccessible()"],["Record-level security","Always use with sharing on classes"],["Default stance","with sharing + USER_MODE = most secure"]])}`,
+
+exceptions:`<h2 class="sec">What is Exception Handling?</h2><p class="desc">An exception is an <b>unexpected error</b> that disrupts normal code execution. Without handling, exceptions crash your entire transaction and roll back all DML. Exception handling lets you catch errors gracefully, log them, show user-friendly messages, and keep processing.</p>
+
+<h2 class="sec">try-catch-finally — The Core Pattern</h2><p class="desc">Wrap risky code in <b>try</b>. If an error occurs, execution jumps to <b>catch</b>. <b>finally</b> always runs — whether or not an error occurred.</p>
+
+${codeBlock(`try {\n    // RISKY CODE — might throw an exception\n    Account a = [SELECT Name FROM Account WHERE Id = '001000000000000'];\n    System.debug(a.Name);\n\n} catch (QueryException e) {\n    // Catches SOQL-specific errors\n    System.debug('Query failed: ' + e.getMessage());\n\n} catch (DmlException e) {\n    // Catches insert/update/delete errors\n    System.debug('DML failed: ' + e.getMessage());\n    System.debug('Record index: ' + e.getDmlIndex(0));\n    System.debug('Field: ' + e.getDmlFieldNames(0));\n\n} catch (Exception e) {\n    // Catches ANY other exception (always put this LAST)\n    System.debug('General error: ' + e.getMessage());\n    System.debug('Type: ' + e.getTypeName());\n    System.debug('Line: ' + e.getLineNumber());\n    System.debug('Stack: ' + e.getStackTraceString());\n\n} finally {\n    // ALWAYS runs — error or no error\n    System.debug('Cleanup complete. This always executes.');\n}`)}
+
+<h3 class="sub">Execution Flow</h3>${tbl(["Scenario","What Happens"],[["No exception","try block runs completely → finally runs → continues after"],["Exception caught","try stops at error line → matching catch runs → finally runs → continues after"],["Exception NOT caught","try stops → no matching catch → finally runs → exception propagates UP to caller"],["Exception in catch","Original catch logic fails → finally still runs → new exception propagates"]])}
+
+<h2 class="sec">Exception Class Methods</h2><p class="desc">Every exception object provides these methods for debugging:</p>
+
+${tbl(["Method","Returns","Description"],[["getMessage()","String","Human-readable error description"],["getTypeName()","String","Exception class name (e.g., 'System.DmlException')"],["getLineNumber()","Integer","Line number where the error occurred"],["getStackTraceString()","String","Full call stack — shows the chain of methods that led to the error"],["getCause()","Exception","The underlying exception if this was re-thrown"]])}
+
+<h3 class="sub">DmlException-Specific Methods</h3><p class="desc">DmlException has extra methods because DML can fail on multiple records:</p>
+
+${tbl(["Method","Returns","Description"],[["getNumDml()","Integer","How many records failed"],["getDmlIndex(i)","Integer","Index of the i-th failed record in the original list"],["getDmlMessage(i)","String","Error message for the i-th failure"],["getDmlFieldNames(i)","List&lt;String&gt;","Fields that caused the i-th failure"],["getDmlId(i)","String","Record Id of the i-th failure (if available)"],["getDmlStatusCode(i)","StatusCode","Enum like REQUIRED_FIELD_MISSING, FIELD_CUSTOM_VALIDATION_EXCEPTION"]])}
+
+${codeBlock(`try {\n    List<Account> accs = new List<Account>{\n        new Account(Name = 'Good'),\n        new Account(),           // Missing Name\n        new Account(Name = 'Also Good'),\n        new Account()            // Missing Name\n    };\n    insert accs;\n} catch (DmlException e) {\n    System.debug('Total failures: ' + e.getNumDml());\n    for (Integer i = 0; i < e.getNumDml(); i++) {\n        System.debug('--- Failure ' + i + ' ---');\n        System.debug('Record index: ' + e.getDmlIndex(i));\n        System.debug('Message: ' + e.getDmlMessage(i));\n        System.debug('Status: ' + e.getDmlStatusCode(i));\n        System.debug('Fields: ' + e.getDmlFieldNames(i));\n    }\n}`)}
+
+<h2 class="sec">Common Exception Types</h2>${tbl(["Exception","When It Occurs","Example"],[["DmlException","insert/update/delete fails","Missing required field, validation rule fails, duplicate record"],["QueryException","SOQL returns 0 rows to single sObject variable","Account a = [SELECT..] with no results"],["ListException","Accessing index out of bounds","myList[5] when list has 3 items"],["NullPointerException","Calling method on null variable","String s = null; s.length();"],["LimitException","Governor limit exceeded","⚠️ CANNOT be caught!"],["MathException","Divide by zero","Integer x = 5/0;"],["TypeException","Invalid type cast","(Account) someContactVariable;"],["CalloutException","HTTP callout fails","Timeout, invalid endpoint, connection refused"],["JSONException","Invalid JSON parsing","JSON.deserialize('bad json', Account.class)"],["StringException","Invalid string operation","String.valueOf(null) in certain contexts"],["SObjectException","Accessing field not queried","acc.Phone when Phone wasn't in SELECT"],["NoAccessException","Security/permission denied","User can't access the object/field"]])}
+
+${warn("<b>LimitException CANNOT be caught!</b> If you hit a governor limit (too many SOQL queries, too many DML statements, CPU timeout), the entire transaction fails. No try-catch can save it. You must write efficient code to prevent it.")}
+
+<h2 class="sec">Multiple Catch Blocks — Order Matters</h2><p class="desc">Always put <b>specific exceptions first</b> and the generic <b>Exception</b> last. Apex matches the first compatible catch block.</p>
+
+${codeBlock(`try {\n    // some operation\n} catch (DmlException e) {\n    // Catches DML errors specifically\n} catch (QueryException e) {\n    // Catches SOQL errors specifically\n} catch (CalloutException e) {\n    // Catches HTTP errors specifically\n} catch (Exception e) {\n    // Catches EVERYTHING ELSE — must be LAST\n}`)}
+
+${warn("If you put <b>catch (Exception e)</b> first, it catches everything and the specific catches below it will never execute.")}
+
+<h2 class="sec">Custom Exceptions</h2><p class="desc">Create your own exception classes for business-specific errors. Extend the <b>Exception</b> class.</p>
+
+${codeBlock(`// Define custom exception\npublic class InsufficientFundsException extends Exception {}\npublic class InvalidDataException extends Exception {}\n\n// Use in business logic\npublic class BankAccount {\n    public Decimal balance = 1000;\n\n    public void withdraw(Decimal amount) {\n        if (amount <= 0) {\n            throw new InvalidDataException('Amount must be positive. Got: ' + amount);\n        }\n        if (amount > balance) {\n            throw new InsufficientFundsException(\n                'Insufficient funds. Balance: ' + balance + ', Requested: ' + amount\n            );\n        }\n        balance -= amount;\n    }\n}\n\n// Handle custom exceptions\ntry {\n    BankAccount b = new BankAccount();\n    b.withdraw(5000);\n} catch (InsufficientFundsException e) {\n    System.debug('Funds error: ' + e.getMessage());\n} catch (InvalidDataException e) {\n    System.debug('Data error: ' + e.getMessage());\n}`)}
+
+<h2 class="sec">throw — Manually Throwing Exceptions</h2>${codeBlock(`// Throw a built-in exception\nthrow new DmlException('Custom DML error message');\n\n// Throw with a cause (chaining)\ntry {\n    insert new Account();\n} catch (DmlException original) {\n    throw new InvalidDataException('Account creation failed', original);\n    // original exception is preserved as getCause()\n}\n\n// Throw in validation method\npublic static void validateAge(Integer age) {\n    if (age < 0 || age > 150) {\n        throw new InvalidDataException('Invalid age: ' + age);\n    }\n}`)}
+
+<h2 class="sec">addError() in Triggers</h2><p class="desc">addError() is a trigger-specific way to prevent a record from being saved and display an error to the user. It does NOT throw an exception — it marks the record as invalid.</p>
+
+${codeBlock(`// Record-level error — message appears at TOP of page\ntrigger AccountTrigger on Account (before insert, before update) {\n    for (Account a : Trigger.new) {\n        if (a.Rating == 'Hot' && a.Phone == null) {\n            a.addError('Phone is required for Hot-rated accounts.');\n        }\n    }\n}\n\n// Field-level error — message appears NEXT TO the field\ntrigger AccountTrigger on Account (before update) {\n    for (Account a : Trigger.new) {\n        if (a.Phone != null && !a.Phone.startsWith('+')) {\n            a.Phone.addError('Phone must start with country code (+)');\n        }\n    }\n}\n\n// Prevent deletion\ntrigger AccountTrigger on Account (before delete) {\n    for (Account a : Trigger.old) {\n        if (a.Rating == 'Hot') {\n            a.addError('Cannot delete Hot-rated accounts.');\n        }\n    }\n}`)}
+
+${tbl(["addError() Aspect","Detail"],[["Where to use","before insert, before update, before delete triggers"],["Effect","Prevents the record from being saved, shows message to user"],["Throws exception?","No — but the DML operation fails for that record"],["Record-level","acc.addError('message') — shown at page top"],["Field-level","acc.FieldName.addError('msg') — shown next to field"],["Bulk behavior","Only blocks records with addError — others may still save (Database methods)"]])}
+
+<h2 class="sec">Exception Handling in DML — try-catch vs Database Methods</h2>
+
+${codeBlock(`// APPROACH 1: try-catch with DML statement\ntry {\n    insert accountList; // All-or-nothing\n} catch (DmlException e) {\n    // Entire operation rolled back — handle error\n    System.debug(e.getDmlMessage(0));\n}\n\n// APPROACH 2: Database method with partial success (PREFERRED)\nDatabase.SaveResult[] results = Database.insert(accountList, false);\nfor (Integer i = 0; i < results.size(); i++) {\n    if (!results[i].isSuccess()) {\n        System.debug('Record ' + i + ' failed: ' + results[i].getErrors()[0].getMessage());\n    }\n}\n// Good records are committed — only bad ones fail`)}
+
+<h2 class="sec">Real-World: Comprehensive Error Handling Pattern</h2>${codeBlock(`public class AccountProcessor {\n    public static void processAccounts(List<Account> accs) {\n        List<Error_Log__c> errorLogs = new List<Error_Log__c>();\n\n        try {\n            // Validate data first\n            for (Account a : accs) {\n                if (String.isBlank(a.Name)) {\n                    throw new InvalidDataException('Account Name cannot be blank');\n                }\n            }\n\n            // Perform DML with partial success\n            Database.SaveResult[] results = Database.update(accs, false);\n            for (Integer i = 0; i < results.size(); i++) {\n                if (!results[i].isSuccess()) {\n                    for (Database.Error err : results[i].getErrors()) {\n                        errorLogs.add(new Error_Log__c(\n                            Record_Id__c = accs[i].Id,\n                            Error_Message__c = err.getMessage(),\n                            Error_Type__c = String.valueOf(err.getStatusCode())\n                        ));\n                    }\n                }\n            }\n\n        } catch (InvalidDataException e) {\n            errorLogs.add(new Error_Log__c(\n                Error_Message__c = 'Validation: ' + e.getMessage(),\n                Error_Type__c = 'VALIDATION'\n            ));\n        } catch (Exception e) {\n            errorLogs.add(new Error_Log__c(\n                Error_Message__c = e.getMessage(),\n                Error_Type__c = e.getTypeName()\n            ));\n        } finally {\n            // Always log errors\n            if (!errorLogs.isEmpty()) {\n                insert errorLogs;\n            }\n        }\n    }\n}`)}
+
+<h2 class="sec">Best Practices</h2>${tbl(["Practice","Why"],[["Specific catches first, generic last","Prevents generic catch from swallowing specific errors"],["Never empty catch blocks","Silently swallowing errors hides bugs"],["Log errors to custom object","Debugging production issues needs persistent logs"],["Use addError() in triggers","User-friendly messages on the UI"],["Database methods for partial success","Don't fail everything because one record is bad"],["Don't rely on catching LimitException","It CANNOT be caught — write efficient code instead"],["Use custom exceptions for business logic","Clearer than generic exceptions"],["Include context in error messages","'Missing phone for Account: Acme' > 'Missing field'"]])}`,
+testing:`<h2 class="sec">What is a Test Class?</h2><p class="desc">A test class annotated with <b>@isTest</b> verifies your code works correctly. It simulates real operations and uses <b>assertions</b> to confirm results. Tests are <b>mandatory</b> for deployment.</p>${tbl(["Reason","Detail"],[["Deployment","75% coverage minimum. Each trigger ≥1%."],["Reliability","Verifies positive, negative, bulk (200 records)"],["Regression","Catches breaks from upgrades or code changes"],["Bulkification","Ensures 200 records don't hit limits"],["Documentation","Shows HOW code is meant to be used"]])}<h2 class="sec">Key Rules</h2>${tbl(["Rule","Explanation"],[["@isTest annotation","Required. Marks code as test-only."],["Data is isolated","Tests do NOT see org data. Create all data inside test."],["Methods: static void","Every test method must be static void."],["Auto-rollback","Data rolled back after each method."],["System.debug() not counted","Doesn't contribute to coverage."],["@isTest classes free","Don't count against 6MB code limit."],["No real emails","Emails triggered in tests NOT sent."]])}<h3 class="sub">Basic Structure — AAA Pattern</h3>${codeBlock(`@isTest\npublic class MyClassTest {\n    @isTest\n    static void testMethod() {\n        // 1. ARRANGE — Create test data\n        Account acc = new Account(Name = 'Test');\n        insert acc;\n\n        // 2. ACT — Execute code under test\n        acc.Phone = '123-456-7890';\n        update acc;\n\n        // 3. ASSERT — Verify result\n        Account result = [SELECT Phone FROM Account WHERE Id = :acc.Id];\n        System.assertEquals('123-456-7890', result.Phone, 'Phone should update');\n    }\n}`)}${note("Follow <b>AAA</b>: Arrange → Act → Assert in every test.")}<h2 class="sec">@TestSetup — Shared Data</h2><p class="desc">Runs <b>once before all test methods</b>. Each method gets its own <b>copy</b> (rolled back independently).</p>${codeBlock(`@isTest\npublic class AccountServiceTest {\n    @TestSetup\n    static void createTestData() {\n        List<Account> accs = new List<Account>();\n        for (Integer i = 0; i < 5; i++)\n            accs.add(new Account(Name='Test '+i, Rating='Hot', Phone='000-'+i));\n        insert accs;\n        List<Contact> cons = new List<Contact>();\n        for (Account a : accs)\n            cons.add(new Contact(LastName='Con for '+a.Name, AccountId=a.Id));\n        insert cons;\n    }\n\n    @isTest\n    static void testMethod1() {\n        List<Account> accs = [SELECT Id FROM Account];\n        System.assertEquals(5, accs.size());\n        delete accs; // rolled back — testMethod2 still sees 5\n    }\n\n    @isTest\n    static void testMethod2() {\n        System.assertEquals(5, [SELECT COUNT() FROM Account]);\n    }\n}`)}${tbl(["Rule","Detail"],[["Only one per class","One @TestSetup method"],["Runs first","Before any test method"],["Data isolation","Each method gets own copy"],["Re-query required","Must query to retrieve data"],["Not with SeeAllData","Cannot use with SeeAllData=true"]])}<h2 class="sec">Test.startTest() / stopTest()</h2><h3 class="sub">Purpose 1: Fresh Governor Limits</h3>${codeBlock(`@isTest\nstatic void testLimits() {\n    List<Account> accs = new List<Account>();\n    for (Integer i = 0; i < 200; i++)\n        accs.add(new Account(Name = 'Test ' + i));\n    insert accs; // Uses setup's limits\n\n    Test.startTest();\n    // FRESH limits from here\n    AccountService.processAccounts(accs);\n    Test.stopTest();\n\n    // Assert results\n}`)}<h3 class="sub">Purpose 2: Force Async to Run Synchronously</h3>${codeBlock(`@isTest\nstatic void testFutureMethod() {\n    Account a = new Account(Name = 'Test');\n    insert a;\n    Test.startTest();\n    MyService.processAsync(new Set<Id>{a.Id}); // Queued\n    Test.stopTest(); // Executes HERE synchronously\n    Account r = [SELECT Description FROM Account WHERE Id = :a.Id];\n    System.assert(r.Description.contains('Processed'));\n}\n\n@isTest\nstatic void testBatch() {\n    List<Account> accs = new List<Account>();\n    for (Integer i = 0; i < 200; i++)\n        accs.add(new Account(Name = 'Batch ' + i));\n    insert accs;\n    Test.startTest();\n    Database.executeBatch(new AccountCleanupBatch(), 200);\n    Test.stopTest(); // ALL batches finish HERE\n    for (Account a : [SELECT Description FROM Account])\n        System.assertEquals('Archived', a.Description);\n}`)}${warn("Without Test.startTest()/stopTest(), async code will NOT execute and assertions fail.")}<h2 class="sec">Assertions</h2><h3 class="sub">Classic System Assert</h3>${codeBlock(`System.assertEquals(expected, actual, 'message');\nSystem.assertNotEquals(null, acc.Id);\nSystem.assert(acc.Name.startsWith('Test'));`)}<h3 class="sub">Modern Assert Class (v56+)</h3>${codeBlock(`Assert.areEqual(5, accounts.size(), 'Should have 5');\nAssert.areNotEqual(null, acc.Id);\nAssert.isTrue(acc.IsActive__c);\nAssert.isFalse(results.isEmpty());\nAssert.isNotNull(acc.Id);\nAssert.isNull(acc.Description);`)}<h2 class="sec">4 Types of Tests</h2><h3 class="sub">1. Positive — Happy Path</h3>${codeBlock(`@isTest\nstatic void testPositive() {\n    Account acc = new Account(Name='Test', Rating='Hot');\n    insert acc;\n    Account r = [SELECT Phone FROM Account WHERE Id = :acc.Id];\n    System.assertEquals('373473893', r.Phone);\n}`)}<h3 class="sub">2. Negative — Error Handling</h3>${codeBlock(`@isTest\nstatic void testNegative() {\n    try {\n        insert new Account(); // No Name\n        System.assert(false, 'Should have thrown');\n    } catch (DmlException e) {\n        System.assert(e.getMessage().contains('REQUIRED_FIELD_MISSING'));\n    }\n}\n\n@isTest\nstatic void testPreventHotDeletion() {\n    Account a = new Account(Name='Test', Rating='Hot');\n    insert a;\n    try {\n        delete a;\n        System.assert(false, 'Should have been blocked');\n    } catch (DmlException e) {\n        System.assert(e.getMessage().contains('Cannot delete'));\n    }\n}`)}<h3 class="sub">3. Bulk — 200 Records</h3>${codeBlock(`@isTest\nstatic void testBulk() {\n    List<Account> accs = new List<Account>();\n    for (Integer i = 0; i < 200; i++)\n        accs.add(new Account(Name='Bulk '+i, Rating='Hot'));\n    Test.startTest();\n    insert accs;\n    Test.stopTest();\n    List<Account> results = [SELECT Phone FROM Account WHERE Name LIKE 'Bulk%'];\n    System.assertEquals(200, results.size());\n    for (Account a : results) System.assertEquals('373473893', a.Phone);\n}`)}<h3 class="sub">4. User Permission</h3>${codeBlock(`@isTest\nstatic void testWithUser() {\n    Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];\n    User u = new User(FirstName='Test', LastName='User', Email='t@t.com',\n        Username='test'+DateTime.now().getTime()+'@t.com', Alias='tu',\n        ProfileId=p.Id, EmailEncodingKey='UTF-8', LanguageLocaleKey='en_US',\n        LocaleSidKey='en_US', TimeZoneSidKey='America/New_York');\n    insert u;\n    System.runAs(u) {\n        Account a = new Account(Name='User Test');\n        insert a;\n        System.assertNotEquals(null, a.Id);\n    };\n}`)}<h2 class="sec">Mixed DML — System.runAs()</h2>${codeBlock(`// BROKEN:\ninsert someUser;              // Setup DML\ninsert new Account(Name='X'); // Non-setup — BOOM!\n\n// FIXED:\ninsert someUser;\nSystem.runAs(someUser) {\n    insert new Account(Name='X'); // Separate transaction — works!\n};`)}<h2 class="sec">Testing Callouts — HttpCalloutMock</h2>${codeBlock(`@isTest\nglobal class MockHttp implements HttpCalloutMock {\n    global HttpResponse respond(HttpRequest req) {\n        HttpResponse res = new HttpResponse();\n        res.setStatusCode(200);\n        res.setBody('{"status":"success"}');\n        return res;\n    }\n}\n\n@isTest\nstatic void testCallout() {\n    Test.setMock(HttpCalloutMock.class, new MockHttp());\n    Test.startTest();\n    String result = MyService.fetchData('endpoint');\n    Test.stopTest();\n    System.assert(result.contains('success'));\n}`)}<h2 class="sec">Test Data Factory</h2>${codeBlock(`@isTest\npublic class TestDataFactory {\n    public static List<Account> createAccounts(Integer count, String rating) {\n        List<Account> accs = new List<Account>();\n        for (Integer i = 0; i < count; i++)\n            accs.add(new Account(Name='Test '+i, Rating=rating));\n        insert accs;\n        return accs;\n    }\n    public static List<Contact> createContacts(List<Account> accs, Integer per) {\n        List<Contact> cons = new List<Contact>();\n        for (Account a : accs)\n            for (Integer i = 0; i < per; i++)\n                cons.add(new Contact(LastName='C'+i, AccountId=a.Id));\n        insert cons;\n        return cons;\n    }\n}\n// Usage: TestDataFactory.createAccounts(5, 'Hot');`)}<h2 class="sec">Code Coverage</h2>${tbl(["Counted","NOT Counted"],[["Executable statements","System.debug()"],["If/else branches","Comments, blank lines"],["Loop bodies","@isTest class code"],["Return statements","Declarations, { }"]])}<h2 class="sec">Best Practices</h2>${tbl(["Practice","Why"],[["Use @TestSetup","Efficient — runs once, fresh copy per method"],["Always startTest/stopTest","Fresh limits + async execution"],["Meaningful assertions","Without them, tests only prove no crash"],["Test positive, negative, bulk","Covers all scenarios"],["TestDataFactory classes","No duplicate setup across classes"],["Never SeeAllData=true","Fragile, depends on org data"],["System.runAs()","Test permissions, avoid MixDML"],["Mock callouts","Tests can't make real HTTP"],["Descriptive names","testPositive_HotGetsPhone > test1"]])}`,
+syncasync:`<h2 class="sec">Sync vs Async</h2>${tbl(["","Synchronous","Asynchronous"],[["Execution","Immediate","Queued"],["SOQL","100","200"],["CPU","10,000 ms","60,000 ms"],["Heap","6 MB","12 MB"],["Types","Triggers, classes","@future, Batch, Queueable, Schedulable"]])}`,
+annotations:`<h2 class="sec">Overview</h2><p class="desc">Salesforce provides annotations and interfaces for <b>asynchronous execution</b> and <b>Flow integration</b>. Async code is queued and runs later with <b>higher governor limits</b>.</p>${tbl(["Tool","Best For","Key Advantage"],[["@future","Simple async, callouts from triggers","Easiest to implement"],["Queueable","Complex async, sObject params, chaining","Most flexible"],["Batch","Thousands/millions of records","Handles massive data"],["Schedulable","Code on a schedule","Time-based automation"],["@InvocableMethod","Apex callable from Flows","Bridge code ↔ declarative"]])}
+
+<h2 class="sec">1. @future Methods — In Depth</h2><h3 class="sub">3 Problems It Solves</h3><p class="desc"><b>1. Callouts from Triggers:</b> Triggers can't make HTTP calls. @future runs in a separate transaction and can.<br><b>2. Mixed DML:</b> Can't DML User + Account in same txn. @future separates them.<br><b>3. Long operations:</b> Offload heavy processing so UI stays responsive.</p>${tbl(["Rule","Detail","Why"],[["Must be static","No instance method","Async has no object context"],["Must return void","No return value","Caller doesn't wait"],["Primitive params only","String, Set&lt;Id&gt;, etc.","sObjects may become stale"],["No sObject params","Pass Ids, re-query inside","Record may change before execution"],["50 calls/txn","Queue flooding prevention",""],["No Job Id","Can't track","Use Queueable if tracking needed"],["No chaining","Can't call @future from @future","Prevents infinite chains"]])}<h3 class="sub">Why No sObject Params?</h3><p class="desc">Parameters are <b>serialized into the queue</b>. The method may execute minutes later — by then the record could have been modified by another user. Passing the old sObject would overwrite those changes. Always pass <b>Ids and re-query</b>.</p><h3 class="sub">Basic Example</h3>${codeBlock(`public class FutureExample {\n    @future\n    public static void updateDescriptions(Set<Id> accountIds) {\n        // ALWAYS re-query — records may have changed!\n        List<Account> accs = [SELECT Id, Description FROM Account WHERE Id IN :accountIds];\n        for (Account a : accs)\n            a.Description = 'Processed async on ' + Datetime.now();\n        update accs;\n    }\n}\n\n// Called from trigger:\ntrigger AccountTrigger on Account (after insert) {\n    Set<Id> ids = new Set<Id>();\n    for (Account a : Trigger.new) ids.add(a.Id);\n    FutureExample.updateDescriptions(ids); // queued, not immediate\n}`)}<h3 class="sub">@future with Callout</h3>${codeBlock(`public class ExternalApiService {\n    @future(callout=true)\n    public static void sendToERP(Set<Id> accIds) {\n        List<Account> accs = [SELECT Id, Name, Phone FROM Account WHERE Id IN :accIds];\n        HttpRequest req = new HttpRequest();\n        req.setEndpoint('callout:My_ERP/api/accounts');\n        req.setMethod('POST');\n        req.setHeader('Content-Type', 'application/json');\n        req.setBody(JSON.serialize(accs));\n        req.setTimeout(30000);\n        HttpResponse res = new Http().send(req);\n        if (res.getStatusCode() == 200) System.debug('Synced!');\n        else System.debug('Error: ' + res.getStatusCode());\n    }\n}`)}<h3 class="sub">@future for Mixed DML</h3>${codeBlock(`public class MixedDmlFix {\n    @future\n    public static void createAccountAsync(String name) {\n        insert new Account(Name = name); // Separate transaction\n    }\n}\n// Usage:\nupdate someUser;                       // Setup DML\nMixedDmlFix.createAccountAsync('Acme'); // Non-setup in separate txn`)}
+
+<h2 class="sec">2. Queueable Apex — In Depth</h2><h3 class="sub">Why Queueable over @future?</h3>${tbl(["@future Limitation","Queueable Fix"],[["Primitive params only","✅ sObjects, custom classes, ANY type"],["No Job Id","✅ System.enqueueJob() returns Id"],["No chaining","✅ Enqueue another in execute()"],["Can't monitor","✅ Query AsyncApexJob"],["Can't call from Batch","✅ Can call from finish()"],["No complex data","✅ Maps, Lists, wrappers"]])}<h3 class="sub">How It Works</h3><p class="desc">Create a class implementing <b>Queueable</b> → define <b>execute(QueueableContext ctx)</b> → pass data via constructor → call <b>System.enqueueJob()</b>. Salesforce serializes your object, queues it, and calls execute() when resources are available.</p>${codeBlock(`public class AccountQueueable implements Queueable {\n    private List<Account> accounts;\n    private String desc;\n\n    public AccountQueueable(List<Account> accs, String d) {\n        this.accounts = accs;\n        this.desc = d;\n    }\n\n    public void execute(QueueableContext ctx) {\n        System.debug('Job: ' + ctx.getJobId());\n        for (Account a : accounts)\n            a.Description = desc + ' | ' + Datetime.now();\n        update accounts;\n    }\n}\n\nList<Account> accs = [SELECT Id FROM Account LIMIT 50];\nId jobId = System.enqueueJob(new AccountQueueable(accs, 'Processed'));\nSystem.debug('Job: ' + jobId);`)}<h3 class="sub">Monitoring Jobs</h3>${codeBlock(`AsyncApexJob job = [\n    SELECT Status, NumberOfErrors, CompletedDate\n    FROM AsyncApexJob WHERE Id = :jobId\n];\n// Status: Queued → Preparing → Processing → Completed/Failed`)}<h3 class="sub">Callouts</h3>${codeBlock(`public class ApiQ implements Queueable, Database.AllowsCallouts {\n    private List<Account> accs;\n    public ApiQ(List<Account> a) { this.accs = a; }\n    public void execute(QueueableContext ctx) {\n        HttpRequest req = new HttpRequest();\n        req.setEndpoint('callout:My_API/sync');\n        req.setMethod('POST');\n        req.setBody(JSON.serialize(accs));\n        new Http().send(req);\n    }\n}`)}<h3 class="sub">Job Chaining</h3><p class="desc">Enqueue another Queueable at end of execute() — sequential pipeline.</p>${codeBlock(`public class Step1 implements Queueable {\n    public void execute(QueueableContext ctx) {\n        List<Account> accs = [SELECT Id FROM Account WHERE Industry=null LIMIT 200];\n        for (Account a : accs) a.Industry = 'Other';\n        update accs;\n        System.enqueueJob(new Step2()); // Chain!\n    }\n}\npublic class Step2 implements Queueable {\n    public void execute(QueueableContext ctx) {\n        List<Contact> cons = [SELECT Id FROM Contact WHERE LeadSource=null LIMIT 200];\n        for (Contact c : cons) c.LeadSource = 'Web';\n        update cons;\n    }\n}`)}${warn("Async context: only <b>1</b> enqueue per execute(). Sync context (trigger): up to <b>50</b>.")}
+
+<h2 class="sec">3. Batch Apex — In Depth</h2><h3 class="sub">Why Batch?</h3><p class="desc">Normal limits: 50K rows, 10K DML rows, 10s CPU. Need to update 500K records? Impossible. Batch splits into chunks of 200 with <b>fresh limits each</b> — effectively unlimited processing.</p>${tbl(["Method","Called","Purpose","Limits"],[["start(bc)","Once","Define dataset (QueryLocator/Iterable)","Standard. QueryLocator: up to 50M records!"],["execute(bc, scope)","Per chunk","Process one batch (default 200)","COMPLETELY FRESH per batch!"],["finish(bc)","Once (last)","Email, chain another batch","Standard"]])}<h3 class="sub">Complete Example</h3>${codeBlock(`public class AccountCleanupBatch implements Database.Batchable<sObject>, Database.Stateful {\n    public Integer totalProcessed = 0;\n    public Integer totalErrors = 0;\n\n    public Database.QueryLocator start(Database.BatchableContext bc) {\n        return Database.getQueryLocator([\n            SELECT Id, Description FROM Account\n            WHERE LastModifiedDate < LAST_N_YEARS:2\n        ]);\n    }\n\n    public void execute(Database.BatchableContext bc, List<Account> scope) {\n        for (Account a : scope) a.Description = 'Archived ' + Date.today();\n        Database.SaveResult[] results = Database.update(scope, false);\n        for (Database.SaveResult sr : results) {\n            if (sr.isSuccess()) totalProcessed++;\n            else totalErrors++;\n        }\n    }\n\n    public void finish(Database.BatchableContext bc) {\n        Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();\n        mail.setToAddresses(new String[]{'admin@co.com'});\n        mail.setSubject('Batch Done');\n        mail.setPlainTextBody('OK: '+totalProcessed+' Err: '+totalErrors);\n        Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{mail});\n    }\n}\nId jobId = Database.executeBatch(new AccountCleanupBatch(), 200);`)}<h3 class="sub">Database.Stateful</h3><p class="desc">Without it, instance variables <b>reset to initial values</b> at each execute(). With it, they persist across all batches.</p>${codeBlock(`// WITHOUT Stateful:\npublic Integer count = 0;\n// Batch 1: count=200, then RESETS to 0\n// Batch 2: count=200 again. Not 400!\n\n// WITH Stateful:\n// Batch 1: count=200. PRESERVED.\n// Batch 2: count=400. PRESERVED.\n// finish(): count = total. Correct!`)}<h3 class="sub">Key Interfaces</h3>${tbl(["Interface","Purpose","When"],[["Database.Batchable&lt;sObject&gt;","Required. 3 methods.","Always"],["Database.Stateful","Variables persist across batches","Counters, error lists"],["Database.AllowsCallouts","HTTP in execute()","API sync per batch"]])}<h3 class="sub">Limits</h3>${tbl(["Aspect","Value"],[["Default batch","200 records"],["Max batch","2,000 records"],["Max total (QueryLocator)","50 million"],["Max total (Iterable)","50,000"],["Concurrent jobs","5"],["Each execute() limits","FRESH — 100 SOQL, 150 DML, 10s CPU"]])}<h3 class="sub">Chaining Batches</h3>${codeBlock(`public void finish(Database.BatchableContext bc) {\n    Database.executeBatch(new ContactCleanupBatch(), 200);\n}`)}
+
+<h2 class="sec">4. Schedulable Apex — In Depth</h2><h3 class="sub">Pattern: Schedule → Batch</h3><p class="desc">Schedulable is the "alarm clock." It fires at the right time and kicks off a Batch for heavy processing.</p>${codeBlock(`public class NightlyCleanup implements Schedulable {\n    public void execute(SchedulableContext sc) {\n        Database.executeBatch(new AccountCleanupBatch(), 200);\n    }\n}`)}<h3 class="sub">CRON Scheduling</h3>${codeBlock(`// CRON: Seconds Minutes Hours DayOfMonth Month DayOfWeek\n\n// Daily 1 AM\nSystem.schedule('Nightly', '0 0 1 * * ?', new NightlyCleanup());\n\n// Every Monday 8 AM\nSystem.schedule('Monday', '0 0 8 ? * MON', new NightlyCleanup());\n\n// 1st of month midnight\nSystem.schedule('Monthly', '0 0 0 1 * ?', new NightlyCleanup());\n\n// Weekdays 6 PM\nSystem.schedule('WeekdayEOD', '0 0 18 ? * MON-FRI', new NightlyCleanup());`)}<h3 class="sub">CRON Reference</h3>${tbl(["Pos","Field","Values","Special"],[["1","Seconds","0-59",""],["2","Minutes","0-59",""],["3","Hours","0-23",""],["4","Day of Month","1-31","? (skip), L (last)"],["5","Month","1-12 / JAN-DEC",""],["6","Day of Week","1-7 / SUN-SAT","? (skip), L (last)"]])}${note("Must use <b>?</b> in either Day_of_Month or Day_of_Week (not both). Max 100 scheduled jobs.")}<h3 class="sub">View & Abort Jobs</h3>${codeBlock(`List<CronTrigger> jobs = [\n    SELECT CronJobDetail.Name, State, NextFireTime\n    FROM CronTrigger WHERE CronJobDetail.JobType = '7'\n];\nSystem.abortJob(jobId);`)}<h3 class="sub">Real-World: Daily Data Quality</h3>${codeBlock(`public class DailyQuality implements Schedulable {\n    public void execute(SchedulableContext sc) {\n        Integer noPhone = [SELECT COUNT() FROM Account WHERE Phone=null];\n        Integer noEmail = [SELECT COUNT() FROM Contact WHERE Email=null];\n        Messaging.SingleEmailMessage m = new Messaging.SingleEmailMessage();\n        m.setToAddresses(new String[]{'ops@co.com'});\n        m.setSubject('Daily Quality - ' + Date.today());\n        m.setPlainTextBody('No Phone: '+noPhone+'\\nNo Email: '+noEmail);\n        Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{m});\n        if (noPhone > 100) Database.executeBatch(new PhoneCleanup(), 200);\n    }\n}\nSystem.schedule('Quality', '0 0 7 * * ?', new DailyQuality());`)}
+
+<h2 class="sec">5. @InvocableMethod & @InvocableVariable</h2><p class="desc">Bridge Apex ↔ Flow Builder. @InvocableMethod makes methods callable from Flows; @InvocableVariable defines input/output fields.</p>${tbl(["Rule","Detail"],[["Access","public static / global static"],["Per class","Only ONE @InvocableMethod"],["Parameters","One List&lt;T&gt;"],["Return","List&lt;T&gt; or void"],["label/description","Shown in Flow builder"]])}${codeBlock(`public class CreateTaskAction {\n    public class TaskRequest {\n        @InvocableVariable(required=true label='Subject') public String subject;\n        @InvocableVariable(label='Due Date') public Date dueDate;\n        @InvocableVariable(label='Record Id') public Id recordId;\n    }\n    public class TaskResult {\n        @InvocableVariable(label='Task Id') public Id taskId;\n        @InvocableVariable(label='Success') public Boolean success;\n    }\n    @InvocableMethod(label='Create Task')\n    public static List<TaskResult> create(List<TaskRequest> reqs) {\n        List<Task> tasks = new List<Task>();\n        for (TaskRequest r : reqs)\n            tasks.add(new Task(Subject=r.subject,\n                ActivityDate=r.dueDate!=null?r.dueDate:Date.today().addDays(7),\n                WhatId=r.recordId));\n        insert tasks;\n        List<TaskResult> out = new List<TaskResult>();\n        for (Task t : tasks) {\n            TaskResult res = new TaskResult();\n            res.taskId = t.Id; res.success = true;\n            out.add(res);\n        }\n        return out;\n    }\n}`)}
+
+<h2 class="sec">Testing Async Apex</h2>${codeBlock(`@isTest\nstatic void testFuture() {\n    Account a = new Account(Name='Test'); insert a;\n    Test.startTest();\n    FutureExample.updateDescriptions(new Set<Id>{a.Id});\n    Test.stopTest();\n    System.assert([SELECT Description FROM Account WHERE Id=:a.Id].Description.contains('Processed'));\n}\n\n@isTest\nstatic void testBatch() {\n    List<Account> accs = new List<Account>();\n    for (Integer i=0; i<200; i++) accs.add(new Account(Name='B'+i));\n    insert accs;\n    Test.startTest();\n    Database.executeBatch(new AccountCleanupBatch(), 200);\n    Test.stopTest();\n    for (Account a : [SELECT Description FROM Account])\n        System.assert(a.Description.contains('Archived'));\n}\n\n@isTest\nstatic void testSchedule() {\n    Test.startTest();\n    Id jid = System.schedule('T', '0 0 1 * * ?', new NightlyCleanup());\n    Test.stopTest();\n    System.assertEquals('WAITING', [SELECT State FROM CronTrigger WHERE Id=:jid].State);\n}`)}
+
+<h2 class="sec">Decision Guide</h2>${tbl(["Scenario","Use","Why"],[["Simple async, primitive data","@future","One annotation, done"],["Need sObjects or chaining","Queueable","Full flexibility + Job Id"],["Process 10K+ records","Batch","Chunks with fresh limits"],["Run at specific times","Schedulable","CRON scheduling, starts Batch"],["Callout from trigger","@future(callout=true)","Trigger can't HTTP directly"],["Callout with complex data","Queueable+AllowsCallouts","sObject params + HTTP"],["Multi-step pipeline","Batch chaining in finish()","Each step handles millions"],["Flow needs custom logic","@InvocableMethod","Admins call Apex from Flow"]])}`,
+governor:`<h2 class="sec">Governor Limits</h2>${tbl(["Limit","Sync","Async"],[["SOQL","100","200"],["SOQL Rows","50,000","50,000"],["DML","150","150"],["DML Rows","10,000","10,000"],["CPU","10,000 ms","60,000 ms"],["Heap","6 MB","12 MB"],["Callouts","100","100"],["Future","50","0"],["Queueable","50","1"]])}${warn("LimitException CANNOT be caught.")}`,
+deployment:`<h2 class="sec">Change Sets</h2>${tbl(["Step","Action"],[["1","Source → Outbound Change Sets → New"],["2","Add components + dependencies"],["3","Upload to target"],["4","Target → Inbound → Deploy"],["5","Tests pass ≥75% → success"]])}<h3 class="sub">Other Methods</h3>${tbl(["Method","Detail"],[["Metadata API","VS Code uses directly"],["Salesforce CLI","sf project deploy start"],["Unlocked Packages","Versioned, installable"],["Scratch Orgs","Temporary dev orgs"]])}`,
+integration:`<h2 class="sec">Integration</h2>${tbl(["Pattern","Description"],[["Request-Reply","SF calls, waits"],["Fire-and-Forget","SF sends, no wait"],["Batch Sync","Periodic bulk"],["Remote Call-In","External calls SF"]])}<h3 class="sub">REST Callout</h3>${codeBlock(`@future(callout=true)\npublic static void callApi(String city) {\n    HttpRequest req = new HttpRequest();\n    req.setEndpoint('callout:API/current?q='+city);\n    req.setMethod('GET');\n    HttpResponse res = new Http().send(req);\n}`)}<h3 class="sub">Expose as REST</h3>${codeBlock(`@RestResource(urlMapping='/accounts/*')\nglobal class AccRest {\n    @HttpGet\n    global static Account get() {\n        String id = RestContext.request.requestURI.substringAfterLast('/');\n        return [SELECT Name FROM Account WHERE Id = :id];\n    }\n}`)}<h3 class="sub">JSON</h3>${codeBlock(`String json = JSON.serialize(myObj);\nAccount a = (Account) JSON.deserialize(str, Account.class);`)}`
+};
+
+// ─── STATE ───
+let active=-1, progress=new Array(sections.length).fill(false), showingHome=true;
+
+function goHome(){
+  showingHome=true;active=-1;
+  document.getElementById('homePage').classList.add('show');
+  document.getElementById('contentWrap').style.display='none';
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById('mainScroll').scrollTop=0;
+}
+function goToSection(idx){
+  showingHome=false;active=idx;
+  document.getElementById('homePage').classList.remove('show');
+  document.getElementById('contentWrap').style.display='block';
+  renderContent();renderNav(document.getElementById('searchInput').value);
+}
+
+// ─── RENDER ───
+function renderNav(filter=''){
+  const nav=document.getElementById('nav');
+  nav.innerHTML=sections.filter(s=>s.title.toLowerCase().includes(filter.toLowerCase())).map(s=>{
+    const idx=sections.indexOf(s);
+    return`<div class="nav-item${idx===active?' active':''}${progress[idx]?' done':''}" data-idx="${idx}">${icons[s.icon]}<span class="label">${s.title}</span><svg class="check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>`;
+  }).join('');
+  nav.querySelectorAll('.nav-item').forEach(el=>el.addEventListener('click',()=>{
+    goToSection(parseInt(el.dataset.idx));
+    document.getElementById('sidebar').classList.remove('open');
+  }));
+}
+function renderContent(){
+  const cw=document.getElementById('contentWrap');
+  cw.classList.add('anim');
+  setTimeout(()=>{
+    document.getElementById('pageTitle').textContent=sections[active].title;
+    const cb=document.getElementById('completeBtn');
+    cb.className='btn-complete'+(progress[active]?' done':'');
+    document.getElementById('completeTxt').textContent=progress[active]?'Completed':'Mark Complete';
+    const db=document.getElementById('diagramBox');
+    if(sections[active].hasDiagram&&diagrams[sections[active].id]){db.style.display='block';db.innerHTML=diagrams[sections[active].id];}else db.style.display='none';
+    document.getElementById('sectionContent').innerHTML=content[sections[active].id]||'';
+    const pb=document.getElementById('prevBtn'),nb=document.getElementById('nextBtn');
+    pb.style.visibility=active>0?'visible':'hidden';pb.textContent='← '+(active>0?sections[active-1].title:'');
+    nb.style.visibility=active<sections.length-1?'visible':'hidden';nb.innerHTML=active<sections.length-1?sections[active+1].title+' →':'';
+    document.getElementById('mainScroll').scrollTop=0;
+    setTimeout(()=>cw.classList.remove('anim'),50);
+  },180);
+}
+function renderProgress(){
+  const pct=Math.round(progress.filter(Boolean).length/sections.length*100);
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressLabel').textContent=pct+'% complete';
+}
+function renderTopicsGrid(){
+  document.getElementById('topicsGrid').innerHTML=sections.map((s,i)=>`<div class="topic-card" data-idx="${i}"><div class="tc-icon" style="background:${gradColors[i]}">${icons[s.icon]}</div><div><div class="tc-title">${s.title}</div><div class="tc-sub">${topicSubs[i]}</div></div></div>`).join('');
+  document.querySelectorAll('.topic-card').forEach(el=>el.addEventListener('click',()=>goToSection(parseInt(el.dataset.idx))));
+}
+
+// ─── EVENTS ───
+document.getElementById('searchInput').addEventListener('input',e=>renderNav(e.target.value));
+document.getElementById('completeBtn').addEventListener('click',()=>{if(active>=0){progress[active]=!progress[active];renderContent();renderProgress();renderNav(document.getElementById('searchInput').value);}});
+document.getElementById('prevBtn').addEventListener('click',()=>{if(active>0)goToSection(active-1);});
+document.getElementById('nextBtn').addEventListener('click',()=>{if(active<sections.length-1)goToSection(active+1);});
+document.getElementById('menuBtn').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+document.getElementById('startBtn').addEventListener('click',()=>goToSection(0));
+document.getElementById('logoBtn').addEventListener('click',()=>{ goHome(); document.getElementById('sidebar').classList.remove('open'); });
+
+// ─── INIT ───
+renderNav();renderProgress();renderTopicsGrid();
+</script>
+</body>
+</html>
