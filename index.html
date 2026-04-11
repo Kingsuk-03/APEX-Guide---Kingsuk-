@@ -214,7 +214,360 @@ integration:`<svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg"><defs
 const content={
 intro:`<h2 class="sec">What is Apex?</h2><p class="desc">Apex is Salesforce's proprietary, strongly-typed, object-oriented programming language. It runs entirely on the Lightning Platform (multi-tenant architecture) and is syntactically similar to Java. It is <b>NOT case-sensitive</b>.</p><p class="desc">You use Apex when declarative tools (Flows, Validation Rules) cannot fulfil a business requirement.</p><h3 class="sub">Key Characteristics</h3>${tbl(["Feature","Description"],[["Hosted","Compiled, stored & executed on Salesforce servers"],["Multi-tenant Aware","Governor Limits enforce fair resource usage"],["Strongly Typed","Every variable must have a declared data type"],["Integrated with Data","SOQL/SOSL/DML embedded directly in code"],["Versioned","Saved against a specific API version"],["Easy to Test","Built-in framework; 75% coverage required"]])}<h3 class="sub">Where Apex Runs</h3><p class="desc">Triggers, Anonymous Blocks, Classes, VF Controllers, LWC (@AuraEnabled), REST/SOAP Web Services, Batch, Queueable, Schedulable, Future methods.</p>${codeBlock(`System.debug('Hello, Salesforce World!');`)}`,
 datatypes:`<h2 class="sec">Primitive Data Types</h2>${tbl(["Type","Description","Example"],[["Integer","32-bit whole number","Integer count = 10;"],["String","Character sequence","String name = 'Apex';"],["Boolean","true / false","Boolean isActive = true;"],["Decimal","Arbitrary precision","Decimal price = 99.99;"],["Date","Date only","Date.today()"],["Id","18-char record Id","Id accId = '001xx...';"],["Blob","Binary data","Blob.valueOf('text')"]])}<h3 class="sub">Collections</h3>${codeBlock(`List<String> fruits = new List<String>{'Apple','Banana'};\nSet<String> colours = new Set<String>{'Red','Blue'};\nMap<Id, Account> accMap = new Map<Id, Account>();`)}<h3 class="sub">Control Flow</h3>${codeBlock(`if (score >= 90) { System.debug('A'); }\nelse if (score >= 80) { System.debug('B'); }\n\nswitch on rating {\n    when 'Hot' { System.debug('High'); }\n    when else  { System.debug('Low'); }\n}\n\nfor (Account a : [SELECT Name FROM Account LIMIT 5]) {\n    System.debug(a.Name);\n}`)}`,
-classes:`<h2 class="sec">Apex Class Structure</h2>${codeBlock(`public class Calculator {\n    public Integer result;\n    public Calculator() { this.result = 0; }\n    public void add(Integer num) { this.result += num; }\n    public static Integer multiply(Integer a, Integer b) { return a * b; }\n}`)}<h3 class="sub">Access Modifiers</h3>${tbl(["Modifier","Visibility"],[["private","Same class only"],["public","Same org"],["global","Everywhere including packages"],["protected","Class + subclasses"]])}<h3 class="sub">Static vs Instance</h3>${tbl(["Aspect","Static","Instance"],[["Belongs to","The class","An object"],["Access","ClassName.method()","obj.method()"],["Memory","Once per txn","Per new"]])}${warn("Cannot perform DML inside a constructor.")}${codeBlock(`public interface Discountable {\n    Decimal getDiscount(Decimal price);\n}\npublic with sharing class SecureService { }\npublic without sharing class AdminService { }`)}`,
+classes:`<h2 class="sec">Apex Class Structure</h2><p class="desc">An Apex class is a blueprint for creating objects. It contains <b>variables</b> (data), <b>methods</b> (behavior), and <b>constructors</b> (initialization). Every piece of Apex code (except triggers) lives inside a class.</p>
+
+${codeBlock(`public class Calculator {
+    // Instance variable — each object has its own copy
+    public Integer result;
+
+    // Default constructor — no parameters
+    public Calculator() {
+        this.result = 0;
+    }
+
+    // Parameterised constructor — accepts arguments
+    public Calculator(Integer startValue) {
+        this.result = startValue;
+    }
+
+    // Instance method — called on an object
+    public void add(Integer num) {
+        this.result += num;
+    }
+
+    // Static method — called on the CLASS, not an object
+    public static Integer multiply(Integer a, Integer b) {
+        return a * b;
+    }
+}
+
+// Usage:
+Calculator calc = new Calculator(10);  // Parameterised constructor
+calc.add(5);                           // Instance method
+System.debug(calc.result);             // 15
+
+Integer product = Calculator.multiply(4, 3);  // Static method
+System.debug(product);                        // 12`)}
+
+<h2 class="sec">Access Modifiers</h2><p class="desc">Access modifiers control <b>who can see</b> your class, method, or variable.</p>
+
+${tbl(["Modifier","Visibility","Use Case"],[["private","Same class only. Default for variables and inner classes.","Helper methods, internal variables that shouldn't be exposed"],["public","Anywhere within the same Salesforce org/namespace.","Most classes, methods, and variables"],["global","Everywhere — including managed packages, external web services, REST/SOAP APIs.","@RestResource classes, managed package APIs, web services"],["protected","Within the class AND its subclasses (inheritance).","Base class methods that subclasses need but outsiders don't"]])}
+
+${codeBlock(`// Top-level class must be public or global
+public class MyService {
+
+    private String internalData = 'secret';  // Only this class can see
+    public String name = 'visible';          // Any class in the org can see
+    protected Integer count = 0;             // This class + subclasses
+
+    private void helperMethod() { }   // Internal only
+    public void doWork() { }          // Callable from anywhere in org
+    global void apiMethod() { }       // Callable from outside the org
+}`)}
+
+${note("A top-level class must be <b>public</b> or <b>global</b>. Inner classes can be <b>private</b>. If no modifier is specified on a variable, it defaults to <b>private</b>.")}
+
+<h2 class="sec">Static vs Non-Static (Instance)</h2><p class="desc"><b>Static</b> members belong to the <b>class itself</b>. <b>Instance</b> members belong to a <b>specific object</b> created with <b>new</b>.</p>
+
+${tbl(["Aspect","Static","Instance (Non-Static)"],[["Belongs to","The class itself","A specific object"],["Accessed via","ClassName.method()","objectRef.method()"],["Memory","Allocated once per transaction, shared across all objects","Each new creates a separate copy"],["Can access","Only other static members directly","Both static AND instance members"],["Lifetime","Exists for entire transaction","Exists as long as the object reference exists"],["Use case","Utility methods, constants, shared counters, helper functions","Object-specific state and behavior"]])}
+
+${codeBlock(`public class Counter {
+    // Static — ONE copy shared by ALL objects
+    public static Integer totalCount = 0;
+
+    // Instance — each object gets its OWN copy
+    public Integer instanceCount = 0;
+
+    public Counter() {
+        totalCount++;      // Shared — increments for every new object
+        instanceCount++;   // Per object — always 1 for each new object
+    }
+}
+
+// Usage:
+Counter c1 = new Counter();
+Counter c2 = new Counter();
+Counter c3 = new Counter();
+
+System.debug(Counter.totalCount);  // 3 (shared across all)
+System.debug(c1.instanceCount);    // 1 (own copy)
+System.debug(c2.instanceCount);    // 1 (own copy)
+System.debug(c3.instanceCount);    // 1 (own copy)`)}
+
+${warn("<b>Static methods cannot access instance variables</b> directly. They have no object context. Instance methods CAN access static members.")}
+
+${codeBlock(`public class Example {
+    public static String className = 'Example';
+    public String objectName = 'myObj';
+
+    public static void staticMethod() {
+        System.debug(className);    // OK — static accessing static
+        // System.debug(objectName); // ERROR — static can't access instance
+    }
+
+    public void instanceMethod() {
+        System.debug(className);    // OK — instance can access static
+        System.debug(objectName);   // OK — instance can access instance
+    }
+}`)}
+
+<h2 class="sec">Constructors</h2><p class="desc">A constructor initializes an object when you use <b>new</b>. It has the <b>same name as the class</b> and <b>no return type</b>.</p>
+
+<h3 class="sub">Types of Constructors</h3>${tbl(["Type","Description"],[["Default (no-arg)","No parameters. If you don't write any constructor, Apex provides an implicit empty one."],["Parameterised","Accepts arguments to initialize the object with data."],["Constructor Chaining","One constructor calls another using this(...) to avoid code duplication."]])}
+
+${codeBlock(`public class Contact2 {
+    public String firstName;
+    public String lastName;
+    public String email;
+
+    // Default constructor — calls parameterised with defaults
+    public Contact2() {
+        this('Unknown', 'Unknown', 'none@example.com');  // Chaining!
+    }
+
+    // Parameterised constructor
+    public Contact2(String firstName, String lastName, String email) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+    }
+
+    // Another parameterised (overloaded)
+    public Contact2(String firstName, String lastName) {
+        this(firstName, lastName, 'none@example.com');  // Chaining!
+    }
+}
+
+// Usage:
+Contact2 c1 = new Contact2();                        // Unknown, Unknown
+Contact2 c2 = new Contact2('John', 'Doe');            // John, Doe, none@...
+Contact2 c3 = new Contact2('Jane', 'Doe', 'j@x.com'); // Jane, Doe, j@x.com`)}
+
+${warn("<b>Cannot perform DML inside a constructor.</b> Constructors run during object creation, and DML in that context can cause unexpected transaction issues.")}
+
+<h2 class="sec">Interfaces</h2><p class="desc">An interface declares <b>method signatures</b> without implementation. Any class that <b>implements</b> the interface MUST provide the method body. Interfaces enable polymorphism — different classes can implement the same interface differently.</p>
+
+${codeBlock(`// Define the interface — just signatures, no body
+public interface Discountable {
+    Decimal getDiscount(Decimal price);
+    String getDiscountType();
+}
+
+// Class 1 implements the interface
+public class SeasonalDiscount implements Discountable {
+    public Decimal getDiscount(Decimal price) {
+        return price * 0.10;  // 10% off
+    }
+    public String getDiscountType() {
+        return 'Seasonal';
+    }
+}
+
+// Class 2 implements the SAME interface differently
+public class VIPDiscount implements Discountable {
+    public Decimal getDiscount(Decimal price) {
+        return price * 0.25;  // 25% off
+    }
+    public String getDiscountType() {
+        return 'VIP';
+    }
+}
+
+// Polymorphism — use interface type to handle both
+Discountable d = new SeasonalDiscount();
+System.debug(d.getDiscount(100));  // 10.00
+d = new VIPDiscount();
+System.debug(d.getDiscount(100));  // 25.00`)}
+
+${note("Salesforce uses interfaces extensively: <b>Database.Batchable</b>, <b>Queueable</b>, <b>Schedulable</b>, <b>HttpCalloutMock</b> — you implement these to plug into platform features.")}
+
+<h2 class="sec">Abstract Classes</h2><p class="desc">An abstract class is a mix of <b>implemented methods</b> (shared logic) and <b>abstract methods</b> (must be overridden by subclasses). You <b>cannot instantiate</b> an abstract class directly.</p>
+
+${codeBlock(`public abstract class Shape {
+    public String color;
+
+    // Regular method — shared by all shapes
+    public void setColor(String c) {
+        this.color = c;
+    }
+
+    // Abstract method — each shape MUST implement its own
+    public abstract Double area();
+    public abstract String shapeName();
+
+    // Method that uses abstract methods
+    public void describe() {
+        System.debug(shapeName() + ' | Color: ' + color + ' | Area: ' + area());
+    }
+}
+
+public class Circle extends Shape {
+    public Double radius;
+    public Circle(Double r) { this.radius = r; }
+
+    public override Double area() {
+        return Math.PI * radius * radius;
+    }
+    public override String shapeName() { return 'Circle'; }
+}
+
+public class Rectangle extends Shape {
+    public Double width, height;
+    public Rectangle(Double w, Double h) { this.width = w; this.height = h; }
+
+    public override Double area() {
+        return width * height;
+    }
+    public override String shapeName() { return 'Rectangle'; }
+}
+
+// Usage:
+Shape s = new Circle(5);
+s.setColor('Red');
+s.describe();  // Circle | Color: Red | Area: 78.54
+
+s = new Rectangle(4, 6);
+s.setColor('Blue');
+s.describe();  // Rectangle | Color: Blue | Area: 24.0`)}
+
+${tbl(["Feature","Interface","Abstract Class"],[["Methods","Only signatures (no body)","Can have both implemented AND abstract methods"],["Variables","No instance variables","Can have instance variables"],["Multiple","A class can implement MULTIPLE interfaces","A class can extend only ONE abstract class"],["Instantiate","Cannot","Cannot"],["Use when","Defining a contract that unrelated classes follow","Sharing common logic among related classes"]])}
+
+<h2 class="sec">With Sharing / Without Sharing / Inherited Sharing</h2><p class="desc">These keywords control <b>record-level security</b> (sharing rules, OWD, role hierarchy). They determine which records the running user can see when your Apex code runs SOQL queries.</p>
+
+<h3 class="sub">The Problem</h3><p class="desc">By default, Apex runs in <b>System Mode</b> — it can access ALL records regardless of the running user's permissions. This is dangerous because a standard user could run your code and see CEO-level data. Sharing keywords fix this.</p>
+
+<h3 class="sub">The 3 Keywords</h3>${tbl(["Keyword","What It Does","When To Use"],[["with sharing","Enforces sharing rules. User only sees records they have access to (OWD, sharing rules, role hierarchy, manual shares).","Default choice for most classes. Especially Visualforce controllers, LWC controllers, any user-facing logic."],["without sharing","Ignores ALL sharing rules. Code sees EVERY record in the org regardless of user.","Admin-level operations, background jobs, reporting that needs full data access. Use with caution!"],["inherited sharing","Inherits sharing context from the CALLING class. If called from with sharing, applies sharing. If called from without sharing, ignores sharing.","Utility/helper classes that should respect whatever the caller decided."],["(none specified)","Behaves like without sharing in most contexts.","⚠️ AVOID — always declare explicitly!"]])}
+
+<h3 class="sub">How Sharing Works — Visual Example</h3><p class="desc">Imagine Account OWD = Private. User A owns Accounts 1-3. User B owns Accounts 4-6. No sharing rules.</p>
+
+${tbl(["Class Type","User A Runs Code","User B Runs Code"],[["with sharing","Sees Accounts 1, 2, 3 only","Sees Accounts 4, 5, 6 only"],["without sharing","Sees ALL Accounts 1-6","Sees ALL Accounts 1-6"],["inherited sharing (called from with sharing)","Sees Accounts 1, 2, 3 only","Sees Accounts 4, 5, 6 only"],["inherited sharing (called from without sharing)","Sees ALL Accounts 1-6","Sees ALL Accounts 1-6"]])}
+
+<h3 class="sub">Code Examples</h3>${codeBlock(`// WITH SHARING — most secure, recommended default
+public with sharing class SecureAccountService {
+    public List<Account> getMyAccounts() {
+        // Only returns accounts the running user can see
+        return [SELECT Name, Phone FROM Account];
+    }
+
+    public void updateAccount(Id accId, String phone) {
+        // Fails if user doesn't have access to this record
+        Account a = [SELECT Id FROM Account WHERE Id = :accId];
+        a.Phone = phone;
+        update a;
+    }
+}
+
+// WITHOUT SHARING — sees everything, use carefully
+public without sharing class AdminAccountService {
+    public List<Account> getAllAccounts() {
+        // Returns ALL accounts — ignores who owns them
+        return [SELECT Name, Phone FROM Account];
+    }
+
+    public Integer getTotalAccountCount() {
+        // Counts ALL accounts in org
+        return [SELECT COUNT() FROM Account];
+    }
+}
+
+// INHERITED SHARING — flexible, adapts to caller
+public inherited sharing class AccountHelper {
+    public List<Account> getAccounts() {
+        // If called from SecureAccountService → applies sharing
+        // If called from AdminAccountService → ignores sharing
+        return [SELECT Name FROM Account];
+    }
+}`)}
+
+<h3 class="sub">Real-World: Mixing Sharing Contexts</h3>${codeBlock(`// Controller — user-facing, must respect sharing
+public with sharing class AccountController {
+    public List<Account> getUserAccounts() {
+        // User only sees their own accounts
+        return [SELECT Name FROM Account];
+    }
+
+    public Integer getOrgWideCount() {
+        // Need total count for a dashboard — but we're in with sharing!
+        // Solution: call a without sharing helper
+        return AdminHelper.countAllAccounts();
+    }
+}
+
+// Helper — admin operation, needs full access
+public without sharing class AdminHelper {
+    public static Integer countAllAccounts() {
+        return [SELECT COUNT() FROM Account]; // Sees ALL
+    }
+
+    public static void assignOwner(Id accountId, Id newOwnerId) {
+        Account a = [SELECT Id FROM Account WHERE Id = :accountId];
+        a.OwnerId = newOwnerId;
+        update a;  // Works regardless of sharing
+    }
+}
+
+// Utility — adapts to whoever calls it
+public inherited sharing class LoggingService {
+    public static void logAccess(String message) {
+        insert new Audit_Log__c(Message__c = message);
+        // Inherits sharing from caller — safe either way
+    }
+}`)}
+
+<h3 class="sub">Sharing in Triggers</h3><p class="desc">Triggers always run in <b>System Mode</b> (without sharing). You cannot put <b>with sharing</b> on a trigger. However, if your trigger calls a handler class that has <b>with sharing</b>, the handler respects sharing rules.</p>
+
+${codeBlock(`// Trigger — always system mode (no sharing keyword allowed)
+trigger AccountTrigger on Account (after insert) {
+    // This handler class has with sharing — so it respects sharing
+    AccountTriggerHandler.afterInsert(Trigger.new);
+}
+
+// Handler — with sharing applied
+public with sharing class AccountTriggerHandler {
+    public static void afterInsert(List<Account> newAccounts) {
+        // SOQL here respects sharing rules
+        List<Contact> cons = [SELECT Id FROM Contact WHERE AccountId IN :newAccounts];
+    }
+}`)}
+
+<h3 class="sub">Sharing with @AuraEnabled (LWC/Aura)</h3><p class="desc">Lightning components call Apex via <b>@AuraEnabled</b>. These methods run as the current user but Apex still runs in System Mode by default. Always use <b>with sharing</b> on LWC controllers.</p>
+
+${codeBlock(`public with sharing class AccountLWCController {
+    @AuraEnabled(cacheable=true)
+    public static List<Account> getAccounts() {
+        // with sharing = user only sees their accounts in the LWC
+        return [SELECT Name, Phone, Industry FROM Account LIMIT 50];
+    }
+
+    @AuraEnabled
+    public static void updatePhone(Id accountId, String phone) {
+        Account a = [SELECT Id FROM Account WHERE Id = :accountId];
+        a.Phone = phone;
+        update a;
+    }
+}`)}
+
+${warn("If you use <b>without sharing</b> on an LWC controller, ANY user can see ALL records through that component — major security hole!")}
+
+<h3 class="sub">Sharing Keywords on Inner Classes</h3>${codeBlock(`public with sharing class OuterClass {
+    // Inner class DOES NOT inherit outer class sharing!
+    // It runs without sharing by default — must declare explicitly
+    public with sharing class InnerSecure {
+        public List<Account> getAccounts() {
+            return [SELECT Name FROM Account]; // Sharing applied
+        }
+    }
+
+    public without sharing class InnerAdmin {
+        public List<Account> getAllAccounts() {
+            return [SELECT Name FROM Account]; // No sharing
+        }
+    }
+}`)}
+
+${note("<b>Inner classes do NOT inherit</b> the sharing setting of the outer class. Always declare sharing on inner classes explicitly.")}
+
+<h2 class="sec">Sharing Best Practices</h2>${tbl(["Practice","Why"],[["Always declare sharing explicitly","Omitting it defaults to without sharing — security risk"],["Default to with sharing","Most code should respect user permissions"],["Use without sharing only when needed","Admin operations, background jobs, aggregate reports"],["Use inherited sharing for utilities","Helpers and service classes that serve multiple callers"],["with sharing on LWC/VF controllers","Prevents data leakage in user-facing components"],["Triggers + with sharing handler","Triggers are system mode, but handler can enforce sharing"],["Test with different user profiles","System.runAs() to verify sharing works correctly"],["Document without sharing usage","Code review should justify every without sharing class"]])}`,
 relationships:`<h2 class="sec">Relationship Types</h2>${tbl(["Type","Coupling","Cascade Delete","Roll-Up"],[["Lookup","Loose","No","No"],["Master-Detail","Tight","Yes","Yes"],["Many-to-Many","Junction 2× M-D","M-D rules","Yes"]])}<h3 class="sub">Traversal in SOQL</h3>${codeBlock(`// Child → Parent (5 levels)\nSELECT Name, Account.Name FROM Contact\n// Custom: __r\nSELECT Project__r.Name FROM Job__c\n\n// Parent → Child (subquery)\nSELECT Name, (SELECT LastName FROM Contacts) FROM Account`)}${note("Child→Parent is safer — 1 parent per child, less risk of hitting limits.")}`,
 soql:`<h2 class="sec">SOQL — Salesforce Object Query Language</h2><p class="desc">SOQL retrieves records from a single object or related objects. Returns <b>List&lt;sObject&gt;</b> by default. Max <b>50,000 rows</b> and <b>100 queries</b> per transaction.</p>
 
@@ -664,7 +1017,8 @@ ${codeBlock(`// APPROACH 1: try-catch with DML statement\ntry {\n    insert acco
 
 <h2 class="sec">Best Practices</h2>${tbl(["Practice","Why"],[["Specific catches first, generic last","Prevents generic catch from swallowing specific errors"],["Never empty catch blocks","Silently swallowing errors hides bugs"],["Log errors to custom object","Debugging production issues needs persistent logs"],["Use addError() in triggers","User-friendly messages on the UI"],["Database methods for partial success","Don't fail everything because one record is bad"],["Don't rely on catching LimitException","It CANNOT be caught — write efficient code instead"],["Use custom exceptions for business logic","Clearer than generic exceptions"],["Include context in error messages","'Missing phone for Account: Acme' > 'Missing field'"]])}`,
 testing:`<h2 class="sec">What is a Test Class?</h2><p class="desc">A test class annotated with <b>@isTest</b> verifies your code works correctly. It simulates real operations and uses <b>assertions</b> to confirm results. Tests are <b>mandatory</b> for deployment.</p>${tbl(["Reason","Detail"],[["Deployment","75% coverage minimum. Each trigger ≥1%."],["Reliability","Verifies positive, negative, bulk (200 records)"],["Regression","Catches breaks from upgrades or code changes"],["Bulkification","Ensures 200 records don't hit limits"],["Documentation","Shows HOW code is meant to be used"]])}<h2 class="sec">Key Rules</h2>${tbl(["Rule","Explanation"],[["@isTest annotation","Required. Marks code as test-only."],["Data is isolated","Tests do NOT see org data. Create all data inside test."],["Methods: static void","Every test method must be static void."],["Auto-rollback","Data rolled back after each method."],["System.debug() not counted","Doesn't contribute to coverage."],["@isTest classes free","Don't count against 6MB code limit."],["No real emails","Emails triggered in tests NOT sent."]])}<h3 class="sub">Basic Structure — AAA Pattern</h3>${codeBlock(`@isTest\npublic class MyClassTest {\n    @isTest\n    static void testMethod() {\n        // 1. ARRANGE — Create test data\n        Account acc = new Account(Name = 'Test');\n        insert acc;\n\n        // 2. ACT — Execute code under test\n        acc.Phone = '123-456-7890';\n        update acc;\n\n        // 3. ASSERT — Verify result\n        Account result = [SELECT Phone FROM Account WHERE Id = :acc.Id];\n        System.assertEquals('123-456-7890', result.Phone, 'Phone should update');\n    }\n}`)}${note("Follow <b>AAA</b>: Arrange → Act → Assert in every test.")}<h2 class="sec">@TestSetup — Shared Data</h2><p class="desc">Runs <b>once before all test methods</b>. Each method gets its own <b>copy</b> (rolled back independently).</p>${codeBlock(`@isTest\npublic class AccountServiceTest {\n    @TestSetup\n    static void createTestData() {\n        List<Account> accs = new List<Account>();\n        for (Integer i = 0; i < 5; i++)\n            accs.add(new Account(Name='Test '+i, Rating='Hot', Phone='000-'+i));\n        insert accs;\n        List<Contact> cons = new List<Contact>();\n        for (Account a : accs)\n            cons.add(new Contact(LastName='Con for '+a.Name, AccountId=a.Id));\n        insert cons;\n    }\n\n    @isTest\n    static void testMethod1() {\n        List<Account> accs = [SELECT Id FROM Account];\n        System.assertEquals(5, accs.size());\n        delete accs; // rolled back — testMethod2 still sees 5\n    }\n\n    @isTest\n    static void testMethod2() {\n        System.assertEquals(5, [SELECT COUNT() FROM Account]);\n    }\n}`)}${tbl(["Rule","Detail"],[["Only one per class","One @TestSetup method"],["Runs first","Before any test method"],["Data isolation","Each method gets own copy"],["Re-query required","Must query to retrieve data"],["Not with SeeAllData","Cannot use with SeeAllData=true"]])}<h2 class="sec">Test.startTest() / stopTest()</h2><h3 class="sub">Purpose 1: Fresh Governor Limits</h3>${codeBlock(`@isTest\nstatic void testLimits() {\n    List<Account> accs = new List<Account>();\n    for (Integer i = 0; i < 200; i++)\n        accs.add(new Account(Name = 'Test ' + i));\n    insert accs; // Uses setup's limits\n\n    Test.startTest();\n    // FRESH limits from here\n    AccountService.processAccounts(accs);\n    Test.stopTest();\n\n    // Assert results\n}`)}<h3 class="sub">Purpose 2: Force Async to Run Synchronously</h3>${codeBlock(`@isTest\nstatic void testFutureMethod() {\n    Account a = new Account(Name = 'Test');\n    insert a;\n    Test.startTest();\n    MyService.processAsync(new Set<Id>{a.Id}); // Queued\n    Test.stopTest(); // Executes HERE synchronously\n    Account r = [SELECT Description FROM Account WHERE Id = :a.Id];\n    System.assert(r.Description.contains('Processed'));\n}\n\n@isTest\nstatic void testBatch() {\n    List<Account> accs = new List<Account>();\n    for (Integer i = 0; i < 200; i++)\n        accs.add(new Account(Name = 'Batch ' + i));\n    insert accs;\n    Test.startTest();\n    Database.executeBatch(new AccountCleanupBatch(), 200);\n    Test.stopTest(); // ALL batches finish HERE\n    for (Account a : [SELECT Description FROM Account])\n        System.assertEquals('Archived', a.Description);\n}`)}${warn("Without Test.startTest()/stopTest(), async code will NOT execute and assertions fail.")}<h2 class="sec">Assertions</h2><h3 class="sub">Classic System Assert</h3>${codeBlock(`System.assertEquals(expected, actual, 'message');\nSystem.assertNotEquals(null, acc.Id);\nSystem.assert(acc.Name.startsWith('Test'));`)}<h3 class="sub">Modern Assert Class (v56+)</h3>${codeBlock(`Assert.areEqual(5, accounts.size(), 'Should have 5');\nAssert.areNotEqual(null, acc.Id);\nAssert.isTrue(acc.IsActive__c);\nAssert.isFalse(results.isEmpty());\nAssert.isNotNull(acc.Id);\nAssert.isNull(acc.Description);`)}<h2 class="sec">4 Types of Tests</h2><h3 class="sub">1. Positive — Happy Path</h3>${codeBlock(`@isTest\nstatic void testPositive() {\n    Account acc = new Account(Name='Test', Rating='Hot');\n    insert acc;\n    Account r = [SELECT Phone FROM Account WHERE Id = :acc.Id];\n    System.assertEquals('373473893', r.Phone);\n}`)}<h3 class="sub">2. Negative — Error Handling</h3>${codeBlock(`@isTest\nstatic void testNegative() {\n    try {\n        insert new Account(); // No Name\n        System.assert(false, 'Should have thrown');\n    } catch (DmlException e) {\n        System.assert(e.getMessage().contains('REQUIRED_FIELD_MISSING'));\n    }\n}\n\n@isTest\nstatic void testPreventHotDeletion() {\n    Account a = new Account(Name='Test', Rating='Hot');\n    insert a;\n    try {\n        delete a;\n        System.assert(false, 'Should have been blocked');\n    } catch (DmlException e) {\n        System.assert(e.getMessage().contains('Cannot delete'));\n    }\n}`)}<h3 class="sub">3. Bulk — 200 Records</h3>${codeBlock(`@isTest\nstatic void testBulk() {\n    List<Account> accs = new List<Account>();\n    for (Integer i = 0; i < 200; i++)\n        accs.add(new Account(Name='Bulk '+i, Rating='Hot'));\n    Test.startTest();\n    insert accs;\n    Test.stopTest();\n    List<Account> results = [SELECT Phone FROM Account WHERE Name LIKE 'Bulk%'];\n    System.assertEquals(200, results.size());\n    for (Account a : results) System.assertEquals('373473893', a.Phone);\n}`)}<h3 class="sub">4. User Permission</h3>${codeBlock(`@isTest\nstatic void testWithUser() {\n    Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];\n    User u = new User(FirstName='Test', LastName='User', Email='t@t.com',\n        Username='test'+DateTime.now().getTime()+'@t.com', Alias='tu',\n        ProfileId=p.Id, EmailEncodingKey='UTF-8', LanguageLocaleKey='en_US',\n        LocaleSidKey='en_US', TimeZoneSidKey='America/New_York');\n    insert u;\n    System.runAs(u) {\n        Account a = new Account(Name='User Test');\n        insert a;\n        System.assertNotEquals(null, a.Id);\n    };\n}`)}<h2 class="sec">Mixed DML — System.runAs()</h2>${codeBlock(`// BROKEN:\ninsert someUser;              // Setup DML\ninsert new Account(Name='X'); // Non-setup — BOOM!\n\n// FIXED:\ninsert someUser;\nSystem.runAs(someUser) {\n    insert new Account(Name='X'); // Separate transaction — works!\n};`)}<h2 class="sec">Testing Callouts — HttpCalloutMock</h2>${codeBlock(`@isTest\nglobal class MockHttp implements HttpCalloutMock {\n    global HttpResponse respond(HttpRequest req) {\n        HttpResponse res = new HttpResponse();\n        res.setStatusCode(200);\n        res.setBody('{"status":"success"}');\n        return res;\n    }\n}\n\n@isTest\nstatic void testCallout() {\n    Test.setMock(HttpCalloutMock.class, new MockHttp());\n    Test.startTest();\n    String result = MyService.fetchData('endpoint');\n    Test.stopTest();\n    System.assert(result.contains('success'));\n}`)}<h2 class="sec">Test Data Factory</h2>${codeBlock(`@isTest\npublic class TestDataFactory {\n    public static List<Account> createAccounts(Integer count, String rating) {\n        List<Account> accs = new List<Account>();\n        for (Integer i = 0; i < count; i++)\n            accs.add(new Account(Name='Test '+i, Rating=rating));\n        insert accs;\n        return accs;\n    }\n    public static List<Contact> createContacts(List<Account> accs, Integer per) {\n        List<Contact> cons = new List<Contact>();\n        for (Account a : accs)\n            for (Integer i = 0; i < per; i++)\n                cons.add(new Contact(LastName='C'+i, AccountId=a.Id));\n        insert cons;\n        return cons;\n    }\n}\n// Usage: TestDataFactory.createAccounts(5, 'Hot');`)}<h2 class="sec">Code Coverage</h2>${tbl(["Counted","NOT Counted"],[["Executable statements","System.debug()"],["If/else branches","Comments, blank lines"],["Loop bodies","@isTest class code"],["Return statements","Declarations, { }"]])}<h2 class="sec">Best Practices</h2>${tbl(["Practice","Why"],[["Use @TestSetup","Efficient — runs once, fresh copy per method"],["Always startTest/stopTest","Fresh limits + async execution"],["Meaningful assertions","Without them, tests only prove no crash"],["Test positive, negative, bulk","Covers all scenarios"],["TestDataFactory classes","No duplicate setup across classes"],["Never SeeAllData=true","Fragile, depends on org data"],["System.runAs()","Test permissions, avoid MixDML"],["Mock callouts","Tests can't make real HTTP"],["Descriptive names","testPositive_HotGetsPhone > test1"]])}`,
-syncasync:`<h2 class="sec">Sync vs Async</h2>${tbl(["","Synchronous","Asynchronous"],[["Execution","Immediate","Queued"],["SOQL","100","200"],["CPU","10,000 ms","60,000 ms"],["Heap","6 MB","12 MB"],["Types","Triggers, classes","@future, Batch, Queueable, Schedulable"]])}`,
+syncasync:`<h2 class="sec">Sync vs Async</h2>${tbl(["","Synchronous","Asynchronous"],[["Execution","Immediate","Queued"],["SOQL","100","200"],["CPU","10,000 ms","60,000 ms"],["Heap","6 MB","12 MB"],["Types","Triggers, classes","@future, Batch, Queueable, Schedulable"]])}
+<h2 class="sec">Can Async Call Async?</h2><p class="desc">Not all async methods can invoke other async methods. This table shows which combinations are allowed.</p>${tbl(["From / To","@future","Queueable","Batch"],[["@future","❌ No","❌ No","❌ No"],["Queueable","✅ Yes","✅ Yes (max 1 in async)","✅ Yes"],["Batch","❌ No","✅ Yes (in finish)","✅ Yes (in finish)"]])}<p class="desc"><b>Key takeaways:</b> @future is the most restricted — it cannot call any other async method. Queueable is the most flexible — it can call all three. Batch can chain Queueable and other Batch jobs but only from the finish() method.</p>`,
 annotations:`<h2 class="sec">Overview</h2><p class="desc">Salesforce provides annotations and interfaces for <b>asynchronous execution</b> and <b>Flow integration</b>. Async code is queued and runs later with <b>higher governor limits</b>.</p>${tbl(["Tool","Best For","Key Advantage"],[["@future","Simple async, callouts from triggers","Easiest to implement"],["Queueable","Complex async, sObject params, chaining","Most flexible"],["Batch","Thousands/millions of records","Handles massive data"],["Schedulable","Code on a schedule","Time-based automation"],["@InvocableMethod","Apex callable from Flows","Bridge code ↔ declarative"]])}
 
 <h2 class="sec">1. @future Methods — In Depth</h2><h3 class="sub">3 Problems It Solves</h3><p class="desc"><b>1. Callouts from Triggers:</b> Triggers can't make HTTP calls. @future runs in a separate transaction and can.<br><b>2. Mixed DML:</b> Can't DML User + Account in same txn. @future separates them.<br><b>3. Long operations:</b> Offload heavy processing so UI stays responsive.</p>${tbl(["Rule","Detail","Why"],[["Must be static","No instance method","Async has no object context"],["Must return void","No return value","Caller doesn't wait"],["Primitive params only","String, Set&lt;Id&gt;, etc.","sObjects may become stale"],["No sObject params","Pass Ids, re-query inside","Record may change before execution"],["50 calls/txn","Queue flooding prevention",""],["No Job Id","Can't track","Use Queueable if tracking needed"],["No chaining","Can't call @future from @future","Prevents infinite chains"]])}<h3 class="sub">Why No sObject Params?</h3><p class="desc">Parameters are <b>serialized into the queue</b>. The method may execute minutes later — by then the record could have been modified by another user. Passing the old sObject would overwrite those changes. Always pass <b>Ids and re-query</b>.</p><h3 class="sub">Basic Example</h3>${codeBlock(`public class FutureExample {\n    @future\n    public static void updateDescriptions(Set<Id> accountIds) {\n        // ALWAYS re-query — records may have changed!\n        List<Account> accs = [SELECT Id, Description FROM Account WHERE Id IN :accountIds];\n        for (Account a : accs)\n            a.Description = 'Processed async on ' + Datetime.now();\n        update accs;\n    }\n}\n\n// Called from trigger:\ntrigger AccountTrigger on Account (after insert) {\n    Set<Id> ids = new Set<Id>();\n    for (Account a : Trigger.new) ids.add(a.Id);\n    FutureExample.updateDescriptions(ids); // queued, not immediate\n}`)}<h3 class="sub">@future with Callout</h3>${codeBlock(`public class ExternalApiService {\n    @future(callout=true)\n    public static void sendToERP(Set<Id> accIds) {\n        List<Account> accs = [SELECT Id, Name, Phone FROM Account WHERE Id IN :accIds];\n        HttpRequest req = new HttpRequest();\n        req.setEndpoint('callout:My_ERP/api/accounts');\n        req.setMethod('POST');\n        req.setHeader('Content-Type', 'application/json');\n        req.setBody(JSON.serialize(accs));\n        req.setTimeout(30000);\n        HttpResponse res = new Http().send(req);\n        if (res.getStatusCode() == 200) System.debug('Synced!');\n        else System.debug('Error: ' + res.getStatusCode());\n    }\n}`)}<h3 class="sub">@future for Mixed DML</h3>${codeBlock(`public class MixedDmlFix {\n    @future\n    public static void createAccountAsync(String name) {\n        insert new Account(Name = name); // Separate transaction\n    }\n}\n// Usage:\nupdate someUser;                       // Setup DML\nMixedDmlFix.createAccountAsync('Acme'); // Non-setup in separate txn`)}
